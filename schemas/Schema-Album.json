@@ -1,0 +1,43 @@
+{
+    "title": "Album",
+    "description": "It's an album",
+    "type": "object",
+    "properties": {
+        "title": {
+            "description": "Album's title",
+            "type": "string",
+            "maxLength": 128,
+            "faker": "random.word"
+        },
+        "description": {
+            "description": "Album's description",
+            "type": "string",
+            "maxLength": 528,
+            "faker": "random.words"
+        },
+        "image": {
+            "description": "Album's cover image",
+            "type": "string",
+            "faker": "image.imageUrl"
+        },
+        "release date": {
+            "description": "Albums's realease date",
+            "type": "string",
+            "faker": "date.past"
+        },
+        "id artist": {
+            "description": "id art",
+            "type": "integer",
+            "faker": "random.number"
+        },
+        "id producer": {
+            "description": "id dew",
+            "type": "integer"
+        },
+        "id record label": {
+            "description": "dvbhe",
+            "type": "integer"
+        }
+    },
+    "required": ["title", "release date","id artist"]
+}

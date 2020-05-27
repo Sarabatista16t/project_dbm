@@ -6,10 +6,11 @@ const path = require('path');
 
 function getConstraints(attribute, name, is_not_null) {
     var constraints = {}
+
     for (const key in attribute) {
         if (key == "type") {
             if (attribute[key] == "integer")
-                constraints[key] = "integer";
+                constraints[key] = "INTEGER";
             if (attribute[key] == "string")
                 constraints[key] = "text";
         }
@@ -27,7 +28,7 @@ function getConstraints(attribute, name, is_not_null) {
             }
         if (key == "maximum")
             if (constraints["minimum"]) {
-                var value = attribute["minimum"]; 
+                var value = attribute["minimum"];
                 delete constraints["minimum"]
                 constraints["min_max"] = "CHECK(" + name + ">=" + value + " and " + name + "<=" + attribute[key] + ")";
 
@@ -37,7 +38,6 @@ function getConstraints(attribute, name, is_not_null) {
     }
     if (is_not_null)
         constraints["not_null"] = "NOT NULL";
-
     return constraints;
 
 }
@@ -46,16 +46,18 @@ function createTable(schema) {
     var elementConstraint = []
     var counter = 0;
     for (const element in schema.properties) {
-        const attr = element.replace(" ", "_").toLowerCase();
-
+        var attr = element;
+        while (attr.includes(" ")) {
+            attr = attr.replace(" ", "_");
+        }
         var values = {};
         values["name"] = attr;
-      
-           let aux = getConstraints(schema.properties[element], element, schema.required.includes(element));
-           var keys = [];
-          for (const key in aux) {
-              keys.push(aux[key]);
-          }
+
+        let aux = getConstraints(schema.properties[element], attr, schema.required.includes(element));
+        var keys = [];
+        for (const key in aux) {
+            keys.push(aux[key]);
+        }
         values["constraints"] = keys.join(" ");
         values["last"] = !(counter < Object.keys(schema.properties).length - 1);
         elementConstraint.push(values);
@@ -66,7 +68,7 @@ function createTable(schema) {
         attributes: elementConstraint,
         attribute: function () { return this.name },
         constraints: function () { return this.constraints },
-        last: function(){return this.last}
+        last: function () { return this.last }
 
     };
 
@@ -75,11 +77,11 @@ function createTable(schema) {
 }
 
 module.exports = function (dbname, schemas) {
-    let db = new sqlite3.Database(dbname, sqlite3.OPEN_READWRITE, (err) => {
+    console.log(__dirname)
+    let db = new sqlite3.Database(dbname,  (err) => {
         if (err) {
             console.error(err.message);
         }
-        console.log('Connected to the chinook database.');
     });
 
     db.serialize(() => {
