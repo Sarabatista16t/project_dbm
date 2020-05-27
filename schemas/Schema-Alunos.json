@@ -1,0 +1,39 @@
+{
+    "title": "Aluno",
+    "description": "A product from Acme's catalog",
+    "type": "object",
+    "properties": {
+        "numero estudante": {
+            "description": "Student's id nummber",
+            "type": "integer",
+            "regex": 8,
+            "unique": true
+        },
+        "name": {
+            "description": "Name of the student",
+            "type": "string",
+            "faker": "name.findName"
+        },
+        "email": {
+            "type": "string",
+            "faker": "internet.email",
+            "maxLength": 254
+        },
+        "address": {
+            "description": "Student's address",
+            "type": "string",
+            "faker": "address.streetAddress"
+        },
+        "grade": {
+            "description": "Student's final grade",
+            "type": "number",
+            "minimum": 0,
+            "maximum": 20
+        }
+    },
+    "required": [
+        "numero estudante",
+        "name",
+        "grade"
+    ]
+}

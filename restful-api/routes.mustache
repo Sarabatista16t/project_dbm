@@ -1,0 +1,50 @@
+
+module.exports = function(router){
+{{#models}}
+
+var {{name}} = require("../Models/{{name}}.js");
+
+
+router.post("/api/{{name}}", function (req,res){
+    var al = Object.assign(new {{name}}(),req.body);
+    al.save(function(result){
+        console.log(result)
+      res.send();
+    });
+
+    
+});
+
+router.get("/api/{{name}}", function(req,res){
+    var rows = {{name}}.all(
+    function(result){
+        res.json(result);
+    });
+});
+
+router.get('/api/{{name}}/:id', function (req, res) {
+   {{name}}.get(req.params.id,
+       function(result){
+        res.json(result);
+    });
+}); 
+
+router.put("/api/{{name}}/:id",function(req, res){
+    var aux = {"id": parseInt(req.params.id)};
+    var al = Object.assign(new {{name}}(), aux, req.body);
+    al.save(function(result){
+        res.json(result);
+    });
+
+    
+});
+
+router.delete("/api/{{name}}/:id", function(req,res){
+    {{name}}.delete(req.params.id,
+       function(result){
+        res.json(result);
+    });
+})
+
+{{/models}}
+}

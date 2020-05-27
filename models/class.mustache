@@ -1,0 +1,53 @@
+var sqlitewrapper = require("../Database/sqlite-wrapper.js")('{{{dbname}}}')
+ 
+const schema{{classTitle}} = require('../Schemas/Schema-{{classTitle}}.json');
+
+const jsf = require('json-schema-faker');
+const faker = require('faker');
+jsf.extend('faker', () => { return faker });
+
+class {{classTitle}} {
+ constructor (id,{{constructorArguments}}) {
+     
+    {{#classConstructor}}
+    this.{{name}} = {{name}};
+    {{/classConstructor}}  
+    this.id = id;
+
+    {{#classEnumerables}}
+        Object.defineProperty(this,"{{name}}", { enumerable: false });
+    {{/classEnumerables}} 
+        Object.defineProperty(this,"id", { enumerable: false });
+
+}
+static create() {
+ return Object.assign(new {{classTitle}}(), jsf.generate(schema{{classTitle}}));
+}
+/////////////
+static all (callback){
+    sqlitewrapper.where("SELECT * FROM {{{classTitle}}}", [], {{classTitle}}, callback)
+}
+ 
+static get(id, callback){
+    sqlitewrapper.where("SELECT * FROM {{{classTitle}}} WHERE id = ?", [id], {{classTitle}}, callback)
+}
+static delete(id, callback) {
+    sqlitewrapper.run("DELETE FROM Aluno WHERE id = ?", [id], callback)
+}
+
+save(callback){
+    console.log("QWERT")
+    console.log("ID"+this.id)
+    if(this.id){
+        console.log("IF")
+        sqlitewrapper.run("UPDATE {{{classTitle}}} SET {{#classConstructor}} {{name}} =? {{^last}},{{/last}} {{/classConstructor}} WHERE id = ?", [{{#classConstructor}} this.{{name}},{{/classConstructor}} this.id], callback)
+    }else{
+                console.log("else")
+
+        sqlitewrapper.run("INSERT INTO {{{classTitle}}} ({{#classConstructor}} {{name}}{{^last}},{{/last}} {{/classConstructor}}) values ({{{questionmark}}})", [{{#classConstructor}} this.{{name}} {{^last}},{{/last}} {{/classConstructor}}]) 
+    }
+} 
+
+}
+
+module.exports = {{classTitle}}

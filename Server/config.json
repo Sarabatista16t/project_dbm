@@ -1,0 +1,11 @@
+{
+    "port": 8080,
+    "schemas":[{
+        "name": "Aluno",
+        "path": "./schemas/Schema-Alunos.json"
+    }],
+    "dbname": "labs",
+    "dbpath": "./Publish/Database/labs",
+    "staticFiles": [{"originalPath": "./sqlite-wrapper.js",
+         "destinationPath": "./Publish/Database/sqlite-wrapper.js"}]
+} 
