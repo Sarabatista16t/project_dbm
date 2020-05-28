@@ -10,7 +10,7 @@ function joinStrng(str) {
     return schemaName
 }
 
-module.exports = function (schemas) {
+module.exports = async function generate(schemas) {
 
     var view = {
         models: schemas,
@@ -23,6 +23,8 @@ module.exports = function (schemas) {
 
     fs.readFile('./restful-api/routes.mustache', function (err, data) {
         var output = mustache.render(data.toString(), view);
-        fs.writeFileSync('./Publish/Controllers/api.js', output);
+        fs.writeFile('./Publish/Controllers/api.js', output, function(){
+            console.log("API ROUTES created")
+        });
     });
 }

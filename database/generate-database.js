@@ -2,7 +2,6 @@ const sqlite3 = require('sqlite3').verbose()
 var mustache = require('mustache')
 var fs = require('fs')
 
-const path = require('path')
 
 function getConstraints(attribute, name, is_not_null) {
   var constraints = {}
@@ -75,14 +74,13 @@ function createTable(schema) {
 }
 
 module.exports = function (dbname, schemas) {
+  console.log(dbname)
   const db = new sqlite3.Database(dbname, (err) => {
     if (err) {
       console.error(err.message)
     }
   })
-
-  db.serialize(() => {
-    // CREATE TABLES
+  new Promise((result, reject) => function () {
     if (Array.isArray(schemas)) {
       schemas.forEach(element => {
         if (element) {
@@ -99,5 +97,18 @@ module.exports = function (dbname, schemas) {
         db.run(output)
       })
     }
-  });
+  }).then(
+    (result) =>{
+      db.close((err) => {
+        if (err) {
+          return console.error(err.message);
+        }
+      });
+    },
+    (reject) => {
+      console.error(reject)
+    }
+  );
+
+
 }
