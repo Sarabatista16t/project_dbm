@@ -5,7 +5,7 @@
             "path": "./schemas/Schema-Album.json"
         },
         {
-            "name": "Artist-SocialMedia",
+            "name": "Artist_SocialMedia",
             "path": "./schemas/Schema-Artist_SocialMedia.json"
         },
         {
@@ -33,7 +33,7 @@
             "path": "./schemas/Schema-SocialMedia.json"
         },
         {
-            "name": "Song-artist",
+            "name": "Song_artist",
             "path": "./schemas/Schema-Song_artist.json"
         },
         {
