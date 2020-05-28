@@ -1,0 +1,28 @@
+{
+    "title": "Artist-SocialMedia",
+    "description": "Represents the all social media of the artist",
+    "type": "object",
+    "properties": {
+        "id artist": {
+            "description": "Artist's id",
+            "type": "integer",
+            "faker": "random.number"
+        },
+        "id social media": {
+            "description": "Social Media's id",
+            "type": "integer",
+            "faker": "random.number"
+        },
+        "link": {
+            "description": "Artist social media's link",
+            "type": "string",
+            "maxLength": 256,
+            "faker": "system.filePath"
+        }
+    },
+    "required": [
+        "id artist",
+        "id social media",
+        "link"
+    ]
+}

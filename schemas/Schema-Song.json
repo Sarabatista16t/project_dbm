@@ -17,12 +17,12 @@
             "faker": "random.number"
         },
         "id album": {
-            "description": "dvbhe",
+            "description": "Album's id",
             "type": "integer",
             "faker": "random.number"
         },
         "id genre": {
-            "description": "dvbhe",
+            "description": "Music genre's id",
             "type": "integer",
             "faker": "random.number"
         }

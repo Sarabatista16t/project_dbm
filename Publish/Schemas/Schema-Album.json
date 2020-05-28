@@ -26,18 +26,18 @@
             "faker": "date.past"
         },
         "id artist": {
-            "description": "id art",
+            "description": "Artist id",
             "type": "integer",
             "faker": "random.number"
         },
         "id producer": {
-            "description": "id dew",
+            "description": "Producer's id",
             "type": "integer"
         },
         "id record label": {
-            "description": "dvbhe",
+            "description": "Record Label's id",
             "type": "integer"
         }
     },
-    "required": ["title", "release date","id artist"]
+    "required": ["title", "release date", "id artist"]
 }
