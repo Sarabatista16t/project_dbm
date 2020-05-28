@@ -13,79 +13,7 @@ app.use(bodyParser.json());
 
 fs.copyFileSync('./sqlite-wrapper.js','./Publish/Database/sqlite-wrapper.js');
 
-
-//Middleware
-app.use('/api/Album',function (req, res, next) {
-  console.log('Time:', Date.now())
-  next()
-})
-app.use('/api/Artist_SocialMedia',function (req, res, next) {
-  console.log('Time:', Date.now())
-  next()
-})
-app.use('/api/Artist',function (req, res, next) {
-  console.log('Time:', Date.now())
-  next()
-})
-app.use('/api/Company',function (req, res, next) {
-  console.log('Time:', Date.now())
-  next()
-})
-app.use('/api/Genre',function (req, res, next) {
-  console.log('Time:', Date.now())
-  next()
-})
-app.use('/api/Producer',function (req, res, next) {
-  console.log('Time:', Date.now())
-  next()
-})
-app.use('/api/Record Label',function (req, res, next) {
-  console.log('Time:', Date.now())
-  next()
-})
-app.use('/api/Social Media',function (req, res, next) {
-  console.log('Time:', Date.now())
-  next()
-})
-app.use('/api/Song_artist',function (req, res, next) {
-  console.log('Time:', Date.now())
-  next()
-})
-app.use('/api/Song',function (req, res, next) {
-  console.log('Time:', Date.now())
-  next()
-})
-
-
-//Routes
-
-app.post("/generate", function (req, res) {
-    //Apagar pastas antigas
-    del.sync(['./Publish']);
-    //Criação de pastas
-    fs.mkdir("./Publish", function(){});
-    fs.mkdir("./Publish/Controllers", function(){});
-    fs.mkdir("./Publish/Models",function(){});
-    fs.mkdir("./Publish/Views",function(){});
-    fs.mkdir("./Publish/Schemas",function(){});
-    fs.mkdir("./Publish/Database",function(){});
-    fs.mkdir('./Publish/Database/projeto', function(){
-        console.log("CRIOU")
-    })
-
-    fs.mkdir('./Publish/Public', function () {
-        fs.writeFile('Publish/Public/index.js', fs.readFileSync("./index.js"), function () {
-            console.log('File created in new directory');
-        });
-
-    });
-
-    //mkdirp.sync('./Publish/Public/Css/Js');
-
-    res.send();
-});
-
-
+//Schemas 
 var schemas =new Array();
 
 //Copy Schemas
@@ -107,11 +35,11 @@ schemas.push(JSON.parse(fs.readFileSync('./Publish/Schemas/Schema-'+'Genre'+'.js
 fs.copyFileSync('./schemas/Schema-Producer.json','./Publish/Schemas/Schema-'+'Producer'+'.json')
 schemas.push(JSON.parse(fs.readFileSync('./Publish/Schemas/Schema-'+'Producer'+'.json')));
 //Copy Schemas
-fs.copyFileSync('./schemas/Schema-RecordLabel.json','./Publish/Schemas/Schema-'+'Record Label'+'.json')
-schemas.push(JSON.parse(fs.readFileSync('./Publish/Schemas/Schema-'+'Record Label'+'.json')));
+fs.copyFileSync('./schemas/Schema-RecordLabel.json','./Publish/Schemas/Schema-'+'Record-Label'+'.json')
+schemas.push(JSON.parse(fs.readFileSync('./Publish/Schemas/Schema-'+'Record-Label'+'.json')));
 //Copy Schemas
-fs.copyFileSync('./schemas/Schema-SocialMedia.json','./Publish/Schemas/Schema-'+'Social Media'+'.json')
-schemas.push(JSON.parse(fs.readFileSync('./Publish/Schemas/Schema-'+'Social Media'+'.json')));
+fs.copyFileSync('./schemas/Schema-SocialMedia.json','./Publish/Schemas/Schema-'+'Social-Media'+'.json')
+schemas.push(JSON.parse(fs.readFileSync('./Publish/Schemas/Schema-'+'Social-Media'+'.json')));
 //Copy Schemas
 fs.copyFileSync('./schemas/Schema-Song_artist.json','./Publish/Schemas/Schema-'+'Song_artist'+'.json')
 schemas.push(JSON.parse(fs.readFileSync('./Publish/Schemas/Schema-'+'Song_artist'+'.json')));
@@ -122,17 +50,44 @@ schemas.push(JSON.parse(fs.readFileSync('./Publish/Schemas/Schema-'+'Song'+'.jso
 
 
 //Database
-
-    require("../database/generate-database.js")('./Publish/Database/projeto/projeto.db',schemas);
+require("../database/generate-database.js")('./Publish/Database/projeto/projeto.db',schemas);
 
 //Create Models from schemas
 require("../models/generate-class.js")('./Publish/Database/projeto/projeto.db',schemas);
 
 //ROUTES
 require("../restful-api/generate-api.js")(schemas);
+var api = require('../Publish/Controllers/api.js');
 
-//require('../Publish/Controllers/api.js')(app);
+//Middleware
+app.use('/api/', api)
 
+
+app.post("/generate", function (req, res) {
+    //Apagar pastas antigas
+    //del.sync(['./Publish']);
+    //Criação de pastas
+    fs.mkdir("./Publish", function(){});
+    fs.mkdir("./Publish/Controllers", function(){});
+    fs.mkdir("./Publish/Models",function(){});
+    fs.mkdir("./Publish/Views",function(){});
+    fs.mkdir("./Publish/Schemas",function(){});
+    fs.mkdir("./Publish/Database",function(){});
+    fs.mkdir('./Publish/Database/projeto', function(){
+        console.log("Folder created")
+    })
+
+    fs.mkdir('./Publish/Public', function () {
+        fs.writeFile('Publish/Public/index.js', fs.readFileSync("./index.js"), function () {
+            console.log('File created in new directory');
+        });
+
+    });
+
+    //mkdirp.sync('./Publish/Public/Css/Js');
+
+    res.send();
+});
 
 
 var server = app.listen(8080, function () {

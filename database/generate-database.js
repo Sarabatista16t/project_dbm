@@ -4,7 +4,7 @@ var fs = require('fs')
 
 const path = require('path')
 
-function getConstraints (attribute, name, is_not_null) {
+function getConstraints(attribute, name, is_not_null) {
   var constraints = {}
 
   for (const key in attribute) {
@@ -37,7 +37,7 @@ function getConstraints (attribute, name, is_not_null) {
   return constraints
 }
 
-function createTable (schema) {
+function createTable(schema) {
   var elementConstraint = []
   var counter = 0
   for (const element in schema.properties) {
@@ -75,7 +75,6 @@ function createTable (schema) {
 }
 
 module.exports = function (dbname, schemas) {
-  console.log(__dirname)
   const db = new sqlite3.Database(dbname, (err) => {
     if (err) {
       console.error(err.message)
@@ -89,7 +88,6 @@ module.exports = function (dbname, schemas) {
         if (element) {
           fs.readFile('./database/dbscript.mustache', function (err, data) {
             var output = mustache.render(data.toString(), createTable(element))
-            console.log(output)
             db.run(output)
           })
         }
@@ -101,15 +99,5 @@ module.exports = function (dbname, schemas) {
         db.run(output)
       })
     }
-  })
-
-  /*
-    db.close((err) => {
-        if (err) {
-          console.error(err.message);
-        }
-        console.log('Close the database connection.');
-      });
-
-*/
+  });
 }

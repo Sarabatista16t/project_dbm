@@ -24,8 +24,18 @@ function generateView(dbname, schema) {
 
     var questionmark = '?,'.repeat(properties.length)
 
+    var schemaName = schema.title;
+    while (schemaName.includes(' ')) {
+        schemaName = schemaName.replace(' ', '-')
+    }
+    var className = schema.title;
+    while (className.includes(' ')) {
+        className = className.replace(' ', '_')
+    }
+
     var view = {
-        classTitle: schema.title,
+        schemaTitle: schemaName,
+        classTitle: className,
         constructorArguments: properties.map(e => { return e.name }).join(","),
         classConstructor: properties,
         name: function () { return this },
@@ -45,14 +55,22 @@ module.exports = function (dbname, schemas) {
             if (element)
                 fs.readFile('./models/class.mustache', function (err, data) {
                     var output = mustache.render(data.toString(), generateView(dbname, element));
-                    fs.writeFileSync("./Publish/Models/" + element.title + ".js", output);
+                    var schemaName = element.title;
+                    while (schemaName.includes(' ')) {
+                        schemaName = schemaName.replace(' ', '_')
+                    }
+                    fs.writeFileSync("./Publish/Models/" +schemaName + ".js", output);
                 });
 
         });
     } else {
         fs.readFile('./models/class.mustache', function (err, data) {
             var output = mustache.render(data.toString(), generateView(dbname, schemas));
-            fs.writeFileSync("./Publish/Models/" + schemas.title + ".js", output);
+            var schemaName = schemas.title;
+            while (schemaName.includes(' ')) {
+                schemaName = schemaName.replace(' ', '_')
+            }
+            fs.writeFileSync("./Publish/Models/" + schemaName + ".js", output);
         });
     }
 

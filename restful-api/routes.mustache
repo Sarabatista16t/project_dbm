@@ -1,5 +1,7 @@
+const express = require("express");
 
-module.exports = function(router){
+const router = express.Router();
+
 {{#models}}
 
 var {{name}} = require("../Models/{{name}}.js");
@@ -8,7 +10,6 @@ var {{name}} = require("../Models/{{name}}.js");
 router.post("/api/{{name}}", function (req,res){
     var al = Object.assign(new {{name}}(),req.body);
     al.save(function(result){
-        console.log(result)
       res.send();
     });
 
@@ -47,4 +48,5 @@ router.delete("/api/{{name}}/:id", function(req,res){
 })
 
 {{/models}}
-}
+
+module.exports = router;

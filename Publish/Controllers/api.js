@@ -1,5 +1,7 @@
+const express = require("express");
 
-module.exports = function(router){
+const router = express.Router();
+
 
 var Album = require("../Models/Album.js");
 
@@ -7,7 +9,6 @@ var Album = require("../Models/Album.js");
 router.post("/api/Album", function (req,res){
     var al = Object.assign(new Album(),req.body);
     al.save(function(result){
-        console.log(result)
       res.send();
     });
 
@@ -52,7 +53,6 @@ var Artist_SocialMedia = require("../Models/Artist_SocialMedia.js");
 router.post("/api/Artist_SocialMedia", function (req,res){
     var al = Object.assign(new Artist_SocialMedia(),req.body);
     al.save(function(result){
-        console.log(result)
       res.send();
     });
 
@@ -97,7 +97,6 @@ var Artist = require("../Models/Artist.js");
 router.post("/api/Artist", function (req,res){
     var al = Object.assign(new Artist(),req.body);
     al.save(function(result){
-        console.log(result)
       res.send();
     });
 
@@ -142,7 +141,6 @@ var Company = require("../Models/Company.js");
 router.post("/api/Company", function (req,res){
     var al = Object.assign(new Company(),req.body);
     al.save(function(result){
-        console.log(result)
       res.send();
     });
 
@@ -187,7 +185,6 @@ var Genre = require("../Models/Genre.js");
 router.post("/api/Genre", function (req,res){
     var al = Object.assign(new Genre(),req.body);
     al.save(function(result){
-        console.log(result)
       res.send();
     });
 
@@ -232,7 +229,6 @@ var Producer = require("../Models/Producer.js");
 router.post("/api/Producer", function (req,res){
     var al = Object.assign(new Producer(),req.body);
     al.save(function(result){
-        console.log(result)
       res.send();
     });
 
@@ -271,36 +267,35 @@ router.delete("/api/Producer/:id", function(req,res){
 })
 
 
-var Record Label = require("../Models/Record Label.js");
+var Record_Label = require("../Models/Record_Label.js");
 
 
-router.post("/api/Record Label", function (req,res){
-    var al = Object.assign(new Record Label(),req.body);
+router.post("/api/Record_Label", function (req,res){
+    var al = Object.assign(new Record_Label(),req.body);
     al.save(function(result){
-        console.log(result)
       res.send();
     });
 
     
 });
 
-router.get("/api/Record Label", function(req,res){
-    var rows = Record Label.all(
+router.get("/api/Record_Label", function(req,res){
+    var rows = Record_Label.all(
     function(result){
         res.json(result);
     });
 });
 
-router.get('/api/Record Label/:id', function (req, res) {
-   Record Label.get(req.params.id,
+router.get('/api/Record_Label/:id', function (req, res) {
+   Record_Label.get(req.params.id,
        function(result){
         res.json(result);
     });
 }); 
 
-router.put("/api/Record Label/:id",function(req, res){
+router.put("/api/Record_Label/:id",function(req, res){
     var aux = {"id": parseInt(req.params.id)};
-    var al = Object.assign(new Record Label(), aux, req.body);
+    var al = Object.assign(new Record_Label(), aux, req.body);
     al.save(function(result){
         res.json(result);
     });
@@ -308,44 +303,43 @@ router.put("/api/Record Label/:id",function(req, res){
     
 });
 
-router.delete("/api/Record Label/:id", function(req,res){
-    Record Label.delete(req.params.id,
+router.delete("/api/Record_Label/:id", function(req,res){
+    Record_Label.delete(req.params.id,
        function(result){
         res.json(result);
     });
 })
 
 
-var Social Media = require("../Models/Social Media.js");
+var Social_Media = require("../Models/Social_Media.js");
 
 
-router.post("/api/Social Media", function (req,res){
-    var al = Object.assign(new Social Media(),req.body);
+router.post("/api/Social_Media", function (req,res){
+    var al = Object.assign(new Social_Media(),req.body);
     al.save(function(result){
-        console.log(result)
       res.send();
     });
 
     
 });
 
-router.get("/api/Social Media", function(req,res){
-    var rows = Social Media.all(
+router.get("/api/Social_Media", function(req,res){
+    var rows = Social_Media.all(
     function(result){
         res.json(result);
     });
 });
 
-router.get('/api/Social Media/:id', function (req, res) {
-   Social Media.get(req.params.id,
+router.get('/api/Social_Media/:id', function (req, res) {
+   Social_Media.get(req.params.id,
        function(result){
         res.json(result);
     });
 }); 
 
-router.put("/api/Social Media/:id",function(req, res){
+router.put("/api/Social_Media/:id",function(req, res){
     var aux = {"id": parseInt(req.params.id)};
-    var al = Object.assign(new Social Media(), aux, req.body);
+    var al = Object.assign(new Social_Media(), aux, req.body);
     al.save(function(result){
         res.json(result);
     });
@@ -353,8 +347,8 @@ router.put("/api/Social Media/:id",function(req, res){
     
 });
 
-router.delete("/api/Social Media/:id", function(req,res){
-    Social Media.delete(req.params.id,
+router.delete("/api/Social_Media/:id", function(req,res){
+    Social_Media.delete(req.params.id,
        function(result){
         res.json(result);
     });
@@ -367,7 +361,6 @@ var Song_Artist = require("../Models/Song_Artist.js");
 router.post("/api/Song_Artist", function (req,res){
     var al = Object.assign(new Song_Artist(),req.body);
     al.save(function(result){
-        console.log(result)
       res.send();
     });
 
@@ -412,7 +405,6 @@ var Song = require("../Models/Song.js");
 router.post("/api/Song", function (req,res){
     var al = Object.assign(new Song(),req.body);
     al.save(function(result){
-        console.log(result)
       res.send();
     });
 
@@ -450,4 +442,5 @@ router.delete("/api/Song/:id", function(req,res){
     });
 })
 
-}
+
+module.exports = router;

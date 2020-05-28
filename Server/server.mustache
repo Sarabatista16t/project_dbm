@@ -15,21 +15,34 @@ app.use(bodyParser.json());
 fs.copyFileSync('{{{originalPath}}}','{{{destinationPath}}}');
 {{/staticFiles}}
 
+//Schemas 
+var schemas =new Array();
+
+{{#schemas}} 
+//Copy Schemas
+fs.copyFileSync('{{{path}}}','./Publish/Schemas/Schema-'+'{{{name}}}'+'.json')
+schemas.push(JSON.parse(fs.readFileSync('./Publish/Schemas/Schema-'+'{{name}}'+'.json')));
+{{/schemas}}
+
+
+
+//Database
+require("../database/generate-database.js")('{{{dbpath}}}/{{dbname}}',schemas);
+
+//Create Models from schemas
+require("../models/generate-class.js")('{{{dbpath}}}/{{dbname}}',schemas);
+
+//ROUTES
+require("../restful-api/generate-api.js")(schemas);
+var api = require('../Publish/Controllers/api.js');
 
 //Middleware
-{{#schemas}} 
-app.use('/api/{{name}}',function (req, res, next) {
-  console.log('Time:', Date.now())
-  next()
-})
-{{/schemas}} 
+app.use('/api/', api)
 
-
-//Routes
 
 app.post("/generate", function (req, res) {
     //Apagar pastas antigas
-    del.sync(['./Publish']);
+    //del.sync(['./Publish']);
     //Criação de pastas
     fs.mkdir("./Publish", function(){});
     fs.mkdir("./Publish/Controllers", function(){});
@@ -38,7 +51,7 @@ app.post("/generate", function (req, res) {
     fs.mkdir("./Publish/Schemas",function(){});
     fs.mkdir("./Publish/Database",function(){});
     fs.mkdir('{{{dbpath}}}', function(){
-        console.log("CRIOU")
+        console.log("Folder created")
     })
 
     fs.mkdir('./Publish/Public', function () {
@@ -52,30 +65,6 @@ app.post("/generate", function (req, res) {
 
     res.send();
 });
-
-
-var schemas =new Array();
-
-{{#schemas}} 
-//Copy Schemas
-fs.copyFileSync('{{{path}}}','./Publish/Schemas/Schema-'+'{{{name}}}'+'.json')
-schemas.push(JSON.parse(fs.readFileSync('./Publish/Schemas/Schema-'+'{{name}}'+'.json')));
-{{/schemas}}
-
-
-
-//Database
-
-    require("../database/generate-database.js")('{{{dbpath}}}/{{dbname}}',schemas);
-
-//Create Models from schemas
-require("../models/generate-class.js")('{{{dbpath}}}/{{dbname}}',schemas);
-
-//ROUTES
-require("../restful-api/generate-api.js")(schemas);
-
-//require('../Publish/Controllers/api.js')(app);
-
 
 
 var server = app.listen({{port}}, function () {

@@ -21,22 +21,48 @@
     <nav>
         <ul class="nav nav-tabs">
             <li class="nav-item">
-                <a class="nav-link active" href="#">Active</a>
+                <a class="nav-link active" id="generator-tab" href="#">Genarator</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Editor</a>
+                <a class="nav-link" id="editor-tab" href="#">Editor</a>
             </li>
         </ul>
     </nav>
+
+    <div> 
+        <div id="generator" style="display:block">
+           <form method="POST" action="generate"> <input type="submit" class="btn btn-success" value="Generate Folders"></form>
+        </div>
+        <div id="editor" style="display: none">
+            <div class="card card-centerp-3 mb-2 bg-dark text-white" style="width: 18rem;">
+                <img src="comming-soon.png" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <p class="card-text">We are working on it.</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
-
-
 <script>
     $(document).ready(function () {
-        $("a").click(function () {
-        });
+
         $("a.nav-link").click(function () {
             $("a.nav-link").toggleClass('active');
         });
-    })
+
+
+        $("a.nav-link").click(function () {
+            if ($("#generator-tab").hasClass('active')) {
+                $("#editor").hide()
+
+                $("#generator").show()
+
+            } else if ($("#editor-tab").hasClass('active')) {
+                $("#generator").hide()
+                $("#editor").show()
+            }
+        });
+    });
+
+
 </script>
