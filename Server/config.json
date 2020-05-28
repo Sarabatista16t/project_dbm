@@ -1,9 +1,40 @@
 {
     "port": 8080,
-    "schemas": [
-        {
+    "schemas": [{
             "name": "Album",
             "path": "./schemas/Schema-Album.json"
+        },
+        {
+            "name": "Artist-SocialMedia",
+            "path": "./schemas/Schema-Artist_SocialMedia.json"
+        },
+        {
+            "name": "Artist",
+            "path": "./schemas/Schema-Artist.json"
+        },
+        {
+            "name": "Company",
+            "path": "./schemas/Schema-Company.json"
+        },
+        {
+            "name": "Genre",
+            "path": "./schemas/Schema-Genre.json"
+        },
+        {
+            "name": "Producer",
+            "path": "./schemas/Schema-Producer.json"
+        },
+        {
+            "name": "Record Label",
+            "path": "./schemas/Schema-RecordLabel.json"
+        },
+        {
+            "name": "Social Media",
+            "path": "./schemas/Schema-SocialMedia.json"
+        },
+        {
+            "name": "Song-artist",
+            "path": "./schemas/Schema-Song_artist.json"
         },
         {
             "name": "Song",
@@ -12,10 +43,8 @@
     ],
     "dbname": "projeto.db",
     "dbpath": "./Publish/Database/projeto",
-    "staticFiles": [
-        {
-            "originalPath": "./sqlite-wrapper.js",
-            "destinationPath": "./Publish/Database/sqlite-wrapper.js"
-        }
-    ]
+    "staticFiles": [{
+        "originalPath": "./sqlite-wrapper.js",
+        "destinationPath": "./Publish/Database/sqlite-wrapper.js"
+    }]
 }
