@@ -19,6 +19,38 @@ app.use('/api/Album',function (req, res, next) {
   console.log('Time:', Date.now())
   next()
 })
+app.use('/api/Artist_SocialMedia',function (req, res, next) {
+  console.log('Time:', Date.now())
+  next()
+})
+app.use('/api/Artist',function (req, res, next) {
+  console.log('Time:', Date.now())
+  next()
+})
+app.use('/api/Company',function (req, res, next) {
+  console.log('Time:', Date.now())
+  next()
+})
+app.use('/api/Genre',function (req, res, next) {
+  console.log('Time:', Date.now())
+  next()
+})
+app.use('/api/Producer',function (req, res, next) {
+  console.log('Time:', Date.now())
+  next()
+})
+app.use('/api/Record Label',function (req, res, next) {
+  console.log('Time:', Date.now())
+  next()
+})
+app.use('/api/Social Media',function (req, res, next) {
+  console.log('Time:', Date.now())
+  next()
+})
+app.use('/api/Song_artist',function (req, res, next) {
+  console.log('Time:', Date.now())
+  next()
+})
 app.use('/api/Song',function (req, res, next) {
   console.log('Time:', Date.now())
   next()
@@ -59,6 +91,30 @@ var schemas =new Array();
 //Copy Schemas
 fs.copyFileSync('./schemas/Schema-Album.json','./Publish/Schemas/Schema-'+'Album'+'.json')
 schemas.push(JSON.parse(fs.readFileSync('./Publish/Schemas/Schema-'+'Album'+'.json')));
+//Copy Schemas
+fs.copyFileSync('./schemas/Schema-Artist_SocialMedia.json','./Publish/Schemas/Schema-'+'Artist_SocialMedia'+'.json')
+schemas.push(JSON.parse(fs.readFileSync('./Publish/Schemas/Schema-'+'Artist_SocialMedia'+'.json')));
+//Copy Schemas
+fs.copyFileSync('./schemas/Schema-Artist.json','./Publish/Schemas/Schema-'+'Artist'+'.json')
+schemas.push(JSON.parse(fs.readFileSync('./Publish/Schemas/Schema-'+'Artist'+'.json')));
+//Copy Schemas
+fs.copyFileSync('./schemas/Schema-Company.json','./Publish/Schemas/Schema-'+'Company'+'.json')
+schemas.push(JSON.parse(fs.readFileSync('./Publish/Schemas/Schema-'+'Company'+'.json')));
+//Copy Schemas
+fs.copyFileSync('./schemas/Schema-Genre.json','./Publish/Schemas/Schema-'+'Genre'+'.json')
+schemas.push(JSON.parse(fs.readFileSync('./Publish/Schemas/Schema-'+'Genre'+'.json')));
+//Copy Schemas
+fs.copyFileSync('./schemas/Schema-Producer.json','./Publish/Schemas/Schema-'+'Producer'+'.json')
+schemas.push(JSON.parse(fs.readFileSync('./Publish/Schemas/Schema-'+'Producer'+'.json')));
+//Copy Schemas
+fs.copyFileSync('./schemas/Schema-RecordLabel.json','./Publish/Schemas/Schema-'+'Record Label'+'.json')
+schemas.push(JSON.parse(fs.readFileSync('./Publish/Schemas/Schema-'+'Record Label'+'.json')));
+//Copy Schemas
+fs.copyFileSync('./schemas/Schema-SocialMedia.json','./Publish/Schemas/Schema-'+'Social Media'+'.json')
+schemas.push(JSON.parse(fs.readFileSync('./Publish/Schemas/Schema-'+'Social Media'+'.json')));
+//Copy Schemas
+fs.copyFileSync('./schemas/Schema-Song_artist.json','./Publish/Schemas/Schema-'+'Song_artist'+'.json')
+schemas.push(JSON.parse(fs.readFileSync('./Publish/Schemas/Schema-'+'Song_artist'+'.json')));
 //Copy Schemas
 fs.copyFileSync('./schemas/Schema-Song.json','./Publish/Schemas/Schema-'+'Song'+'.json')
 schemas.push(JSON.parse(fs.readFileSync('./Publish/Schemas/Schema-'+'Song'+'.json')));

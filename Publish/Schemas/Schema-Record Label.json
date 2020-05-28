@@ -1,0 +1,22 @@
+{
+    "title": "Record Label",
+    "description": "It's the Producer",
+    "type": "object",
+    "properties": {
+        "name": {
+            "description": "Record Label's name",
+            "type": "string",
+            "maxLength": 128,
+            "faker": "name.findName"
+        },
+        "id company": {
+            "description": "Record Label's company",
+            "type": "integer",
+            "faker": "random.number"
+        }
+    },
+    "required": [
+        "name",
+        "id company"
+    ]
+}
