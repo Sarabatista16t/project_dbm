@@ -1,4 +1,4 @@
-var sqlitewrapper = require("../Database/sqlite-wrapper.js")('{{{dbname}}}')
+var database = require("../Database/sqlite-wrapper.js")('{{{dbname}}}')
  
 const schema{{classTitle}} = require('../Schemas/Schema-{{schemaTitle}}.json');
 
@@ -20,19 +20,23 @@ class {{classTitle}} {
         Object.defineProperty(this,"id", { enumerable: false });
 
 }
+
+//Generate an object from the json faker from the correspondent schema
 static create() {
  return Object.assign(new {{classTitle}}(), jsf.generate(schema{{classTitle}}));
 }
-/////////////
+
+
+
 static all (callback){
-    sqlitewrapper.where("SELECT * FROM {{{classTitle}}}", [], {{classTitle}}, callback)
+    database.where("SELECT * FROM {{{classTitle}}}", [], {{classTitle}}, callback)
 }
  
 static get(id, callback){
-    sqlitewrapper.where("SELECT * FROM {{{classTitle}}} WHERE id = ?", [id], {{classTitle}}, callback)
+    database.where("SELECT * FROM {{{classTitle}}} WHERE id = ?", [id], {{classTitle}}, callback)
 }
 static delete(id, callback) {
-    sqlitewrapper.run("DELETE FROM Aluno WHERE id = ?", [id], callback)
+    database.run("DELETE FROM Aluno WHERE id = ?", [id], callback)
 }
 
 save(callback){
@@ -40,11 +44,11 @@ save(callback){
     console.log("ID"+this.id)
     if(this.id){
         console.log("IF")
-        sqlitewrapper.run("UPDATE {{{classTitle}}} SET {{#classConstructor}} {{name}} =? {{^last}},{{/last}} {{/classConstructor}} WHERE id = ?", [{{#classConstructor}} this.{{name}},{{/classConstructor}} this.id], callback)
+        database.run("UPDATE {{{classTitle}}} SET {{#classConstructor}} {{name}} =? {{^last}},{{/last}} {{/classConstructor}} WHERE id = ?", [{{#classConstructor}} this.{{name}},{{/classConstructor}} this.id], callback)
     }else{
                 console.log("else")
 
-        sqlitewrapper.run("INSERT INTO {{{classTitle}}} ({{#classConstructor}} {{name}}{{^last}},{{/last}} {{/classConstructor}}) values ({{{questionmark}}})", [{{#classConstructor}} this.{{name}} {{^last}},{{/last}} {{/classConstructor}}]) 
+        database.run("INSERT INTO {{{classTitle}}} ({{#classConstructor}} {{name}}{{^last}},{{/last}} {{/classConstructor}}) values ({{{questionmark}}})", [{{#classConstructor}} this.{{name}} {{^last}},{{/last}} {{/classConstructor}}]) 
     }
 } 
 

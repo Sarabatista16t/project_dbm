@@ -1,8 +1,13 @@
 var fs = require("fs");
 var mustache = require('mustache');
 
-function joinStrng(str) {
 
+/*
+Remove all spaces from a given string
+EX: input: 'nome do schema'
+    output: 'nome_do_schema'
+*/
+function joinStrng(str) {
     var schemaName = str;
     while (schemaName.includes(' ')) {
         schemaName = schemaName.replace(' ', '_')
@@ -22,7 +27,11 @@ module.exports = function (schemas) {
 
 
     fs.readFile('./restful-api/routes.mustache', function (err, data) {
+
+        //Render output for creating the routes
         var output = mustache.render(data.toString(), view);
+
+        // Write routes' file with the generated output
         fs.writeFileSync('./Publish/Controllers/api.js', output);
     });
 }
