@@ -74,48 +74,39 @@ function createTable(schema) {
 }
 
 
-module.exports = function (dbname, schemas) {
-  let db;
-  do {
-    db = new sqlite3.Database(dbname, (err) => {
+function getArray(schemas, _callback) {
+  var stmt = new Array();
+
+  if (Array.isArray(schemas)) {
+    for (const element of schemas) {
+      fs.readFile('./database/dbscript.mustache', function (err, data) {
+        _callback(mustache.render(data.toString(), createTable(element)))
+      })
+    }
+  }
+}
+
+
+module.exports = async function (dbname, schemas) {
+  var stmt = await getArray(schemas, (stmt) => {
+
+    var db = new sqlite3.Database(dbname, (err) => {
+
       if (err) {
         console.log(err.message)
       }
-    });
-  }
-  while (!fs.existsSync(dbname))
-
-  new Promise((result, reject) => function () {
-    if (Array.isArray(schemas)) {
-      schemas.forEach(element => {
-        if (element) {
-          fs.readFile('./database/dbscript.mustache', function (err, data) {
-            var output = mustache.render(data.toString(), createTable(element))
-            db.run(output)
-          })
-        }
-      })
-    } else {
-      var view = createTable(dbname, schemas)
-      var output = mustache.render(data.toString(), view)
-      db.run(output)
-    }
-  }).then(
-    (result) => {
-      db.close((err) => {
-        if (err) {
-          return console.error(err.message);
-        }
-      },
-        (reject) => {
-          console.error(reject)
-        }
-      );
-
-      db.close((err) => {
-        if (err) {
-          return console.error(err.message);
-        }
+      db.serialize(() => {
+        db.run(stmt, function () { if (err) console.log(err) })
       });
+
+    })
+
+    db.close((err) => {
+      if (err) {
+        return console.error(err.message);
+      }
+
     });
-  }
+  })
+}
+
