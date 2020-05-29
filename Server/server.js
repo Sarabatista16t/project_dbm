@@ -17,20 +17,18 @@ var schemas =new Array();
 
 
 app.post("/generate", function (req, res) {
-    //Apagar pastas antigas
+    //Delete previous folders
     del.sync(['Publish']);
 
-    //Criação de pastas
-    fs.mkdir("./Publish", function(){
-        console.log("Publish created");
-    });
-    
-    fs.mkdir("./Publish/Schemas",function(){
-  
-    }); 
-            
-        //Copy Schemas
+    //Create folders
 
+    //Create Publish folder
+    fs.mkdir("./Publish", function(){});
+    
+    //Create Schemas folder
+    fs.mkdir("./Publish/Schemas",function(){}); 
+            
+    //Copy Schemas
     fs.copyFileSync('./schemas/Schema-Album.json','./Publish/Schemas/Schema-'+'Album'+'.json');
     schemas.push(JSON.parse(fs.readFileSync('./Publish/Schemas/Schema-'+'Album'+'.json')));
 
@@ -62,34 +60,38 @@ app.post("/generate", function (req, res) {
     schemas.push(JSON.parse(fs.readFileSync('./Publish/Schemas/Schema-'+'Song'+'.json')));
 
 
-
+    //Create Database folder
     fs.mkdir("./Publish/Database",function(){ 
         //Copy static files
         fs.copyFileSync('./sqlite-wrapper.js','./Publish/Database/sqlite-wrapper.js');
 
 
     });
+    //Create Folder for project's database
+
     fs.mkdir('./Publish/Database/projeto', function(){
-        //Database
+        //Create Database
         require("../database/generate-database.js")('./Publish/Database/projeto/projeto.db',schemas);
+    });
 
-    })
-
+    //Create Models folder
     fs.mkdir("./Publish/Models",function(){
         //Create Models from schemas
         require("../models/generate-class.js")('./Publish/Database/projeto/projeto.db',schemas);
 
     });
 
+    //Create Controllers folder
     fs.mkdir("./Publish/Controllers", function(){
-        //ROUTES
+        //Create Routes file
         var generate = require("../restful-api/generate-api.js");
         new Promise((result, reject)=> generate(schemas)).then(
             function(result){
-                try{      
-
+                try{     
+                    //Execute routes file 
                     var api = require('../Publish/Controllers/api.js');
-                    //Middleware
+                    
+                    //Middleware expression
                     app.use('/api/', api)
                 }catch(e){
                     console.log(e)
@@ -99,12 +101,10 @@ app.post("/generate", function (req, res) {
         
 
     });
-    
-    fs.mkdir("./Publish/Views",function(){  
-        console.log("Vies folder created");
-    });
+     //Create Views folder
+    fs.mkdir("./Publish/Views",function(){});
   
-
+    //Create Public folder
     fs.mkdir('./Publish/Public', function () {
         fs.writeFile('Publish/Public/index.js', fs.readFileSync("./index.js"), function () {
             console.log('File created in new directory');

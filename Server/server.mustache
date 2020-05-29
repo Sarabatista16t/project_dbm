@@ -76,12 +76,10 @@ app.post("/generate", function (req, res) {
         
 
     });
-    
-    fs.mkdir("./Publish/Views",function(){  
-        console.log("Vies folder created");
-    });
+     //Create Views folder
+    fs.mkdir("./Publish/Views",function(){});
   
-
+    //Create Public folder
     fs.mkdir('./Publish/Public', function () {
         fs.writeFile('Publish/Public/index.js', fs.readFileSync("./index.js"), function () {
             console.log('File created in new directory');
