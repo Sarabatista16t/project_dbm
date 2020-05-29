@@ -17,27 +17,25 @@ var schemas =new Array();
 
 
 app.post("/generate", function (req, res) {
-    //Apagar pastas antigas
+    //Delete previous folders
     del.sync(['Publish']);
 
-    //Criação de pastas
-    fs.mkdir("./Publish", function(){
-        console.log("Publish created");
-    });
-    
-    fs.mkdir("./Publish/Schemas",function(){
-  
-    }); 
-            
-        //Copy Schemas
+    //Create folders
 
+    //Create Publish folder
+    fs.mkdir("./Publish", function(){});
+    
+    //Create Schemas folder
+    fs.mkdir("./Publish/Schemas",function(){}); 
+            
+    //Copy Schemas
     {{#schemas}} 
     fs.copyFileSync('{{{path}}}','./Publish/Schemas/Schema-'+'{{{name}}}'+'.json');
     schemas.push(JSON.parse(fs.readFileSync('./Publish/Schemas/Schema-'+'{{name}}'+'.json')));
 
     {{/schemas}}  
 
-
+    //Create Database folder
     fs.mkdir("./Publish/Database",function(){ 
         //Copy static files
         {{#staticFiles}} 
@@ -46,27 +44,31 @@ app.post("/generate", function (req, res) {
 
 
     });
+    //Create Folder for project's database
+
     fs.mkdir('{{{dbpath}}}', function(){
-        //Database
+        //Create Database
         require("../database/generate-database.js")('{{{dbpath}}}/{{dbname}}',schemas);
+    });
 
-    })
-
+    //Create Models folder
     fs.mkdir("./Publish/Models",function(){
         //Create Models from schemas
         require("../models/generate-class.js")('{{{dbpath}}}/{{dbname}}',schemas);
 
     });
 
+    //Create Controllers folder
     fs.mkdir("./Publish/Controllers", function(){
-        //ROUTES
+        //Create Routes file
         var generate = require("../restful-api/generate-api.js");
         new Promise((result, reject)=> generate(schemas)).then(
             function(result){
-                try{      
-
+                try{     
+                    //Execute routes file 
                     var api = require('../Publish/Controllers/api.js');
-                    //Middleware
+                    
+                    //Middleware expression
                     app.use('/api/', api)
                 }catch(e){
                     console.log(e)
