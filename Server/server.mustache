@@ -10,7 +10,6 @@ app.use(bodyParser.json());
 const sqlite3 = require('sqlite3').verbose()
 var Promise = require('promise');
 
-//Copy static files
 
 
 //Schemas 
@@ -19,7 +18,6 @@ var schemas =new Array();
 
 app.post("/generate", function (req, res) {
     //Apagar pastas antigas
-  
     del.sync(['Publish']);
 
     //Criação de pastas
@@ -28,14 +26,20 @@ app.post("/generate", function (req, res) {
     });
     
     fs.mkdir("./Publish/Schemas",function(){
+  
+    }); 
+            
         //Copy Schemas
-        {{#schemas}} 
-        fs.copyFileSync('{{{path}}}','./Publish/Schemas/Schema-'+'{{{name}}}'+'.json')
-        schemas.push(JSON.parse(fs.readFileSync('./Publish/Schemas/Schema-'+'{{name}}'+'.json')));
-        {{/schemas}}
 
-    });
+    {{#schemas}} 
+    fs.copyFileSync('{{{path}}}','./Publish/Schemas/Schema-'+'{{{name}}}'+'.json');
+    schemas.push(JSON.parse(fs.readFileSync('./Publish/Schemas/Schema-'+'{{name}}'+'.json')));
+
+    {{/schemas}}  
+
+
     fs.mkdir("./Publish/Database",function(){ 
+        //Copy static files
         {{#staticFiles}} 
         fs.copyFileSync('{{{originalPath}}}','{{{destinationPath}}}');
         {{/staticFiles}}
@@ -59,15 +63,16 @@ app.post("/generate", function (req, res) {
         var generate = require("../restful-api/generate-api.js");
         new Promise((result, reject)=> generate(schemas)).then(
             function(result){
-                try{
+                try{      
+
                     var api = require('../Publish/Controllers/api.js');
+                    //Middleware
                     app.use('/api/', api)
                 }catch(e){
                     console.log(e)
                 }
             }
         );
-      //Middleware
         
 
     });
