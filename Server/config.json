@@ -41,10 +41,53 @@
             "path": "./schemas/Schema-Song.json"
         }
     ],
-    "dbname": "projeto.db",
-    "dbpath": "./Publish/Database/projeto",
+     "dbname": "labs",
+    "dbpath": "./Publish/Database/labs",
+    "frontoffice": [{
+        "model": "Aluno",
+        "property": "grade",
+        "order": "DESC",
+        "limit": 3
+    }],
     "staticFiles": [{
-        "originalPath": "./sqlite-wrapper.js",
-        "destinationPath": "./Publish/Database/sqlite-wrapper.js"
-    }]
+            "originalPath": "./staticFiles/sqlite-wrapper.js",
+            "destinationPath": "./Publish/Database/sqlite-wrapper.js"
+        },
+        {
+            "originalPath": "./staticFiles/list.mustache",
+            "destinationPath": "./Publish/Views/list.mustache"
+        },
+        {
+            "originalPath": "./staticFiles/home.mustache",
+            "destinationPath": "./Publish/Views/home.mustache"
+        },
+        {
+            "originalPath": "./staticFiles/details.mustache",
+            "destinationPath": "./Publish/Views/details.mustache"
+        },
+        {
+            "originalPath": "./staticFiles/insert.mustache",
+            "destinationPath": "./Publish/Views/insert.mustache"
+        },
+        {
+            "originalPath": "./staticFiles/menu.mustache",
+            "destinationPath": "./Publish/Views/menu.mustache"
+        },
+        {
+            "originalPath": "./staticFiles/edit.mustache",
+            "destinationPath": "./Publish/Views/edit.mustache"
+        },
+        {
+            "originalPath": "./staticFiles/delete.png",
+            "destinationPath": "./Publish/Public/images/delete.png"
+        },
+        {
+            "originalPath": "./staticFiles/edit.png",
+            "destinationPath": "./Publish/Public/images/edit.png"
+        },
+        {
+            "originalPath": "./staticFiles/read.png",
+            "destinationPath": "./Publish/Public/images/read.png"
+        }
+    ]
 }
