@@ -14,7 +14,7 @@
             "type": "integer",
             "minimum": 0,
             "maximum": 900,
-            "faker": "random.number"
+            "faker": "phone.phoneNumber"
         }
     },
     "required": [

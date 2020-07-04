@@ -124,7 +124,6 @@ save(callback){
    function aux(statements, callback){
         var call = callback;
         var elem = statements.pop()
-        console.log(elem)
         if(statements.length>0) call =  aux(statements,callback)
         sqlitewrapper.run(elem['stmt'],elem['params'] , call)
     
@@ -147,6 +146,8 @@ function manyTo(obj,attr, values, params , id){
                 }else{
                     manymany.push({stmt:"INSERT INTO Genre_Song (Song_id, Genre_id) values (?,?)",  params: [id, obj.Genre_id]}); 
                 }
+                manymany.push({stmt:"DELETE FROM Genre_Song WHERE Song_id= ?", params: id })
+
             }
         }
         if(obj.Album_id)  {
@@ -156,6 +157,8 @@ function manyTo(obj,attr, values, params , id){
                 }else{
                     manymany.push({stmt:"INSERT INTO Album_Song (Song_id, Album_id) values (?,?)",  params: [id, obj.Album_id]}); 
                 }
+                manymany.push({stmt:"DELETE FROM Album_Song WHERE Song_id= ?", params: id })
+
             }
         }
         return manymany

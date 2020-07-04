@@ -102,7 +102,6 @@ save(callback){
    function aux(statements, callback){
         var call = callback;
         var elem = statements.pop()
-        console.log(elem)
         if(statements.length>0) call =  aux(statements,callback)
         sqlitewrapper.run(elem['stmt'],elem['params'] , call)
     
@@ -125,6 +124,8 @@ function manyTo(obj,attr, values, params , id){
                 }else{
                     manymany.push({stmt:"INSERT INTO Album_Producer (Producer_id, Album_id) values (?,?)",  params: [id, obj.Album_id]}); 
                 }
+                manymany.push({stmt:"DELETE FROM Album_Producer WHERE Producer_id= ?", params: id })
+
             }
         }
         return manymany

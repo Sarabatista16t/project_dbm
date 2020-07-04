@@ -9,33 +9,58 @@ function submitForm(oFormElement){
     };
     {{#references}}
     if({{isManyToMany}}){
-        var checkboxes = []
+        var classes = []
         var list = document.querySelectorAll( 'input[type=checkbox]' );
         for (var item of list) {
-            if(item.checked){
-                checkboxes.push(item.value)
-            } 
+            if(!classes.includes(item.className)) classes.push(item.className)
+         
         }
-        params['{{model}}_id']= checkboxes;
+        classes.forEach((e)=>{
+            var checkboxes = []
+            var nodes = document.querySelectorAll( '.'+e );
+            for(var node of nodes){
+                if(node.checked){
+                    checkboxes.push(node.value)
+                } 
+            }
+            
+            let name = e.split("_checkbox")[0]
+
+            params[name+'_id']= checkboxes;
+        })
+        console.log(params)
+
 
     }else{
+        var classes = []
+        var list = document.querySelectorAll( 'select' );
+        for (var item of list) {
+            console.log(item.className)
+            if(!classes.includes(item.className)) classes.push(item.className)
+         
+        }
+        classes.forEach((el)=>{
+            console.log("CLASS NAME "+el)
+            var e = document.querySelectorAll( '.'+el);
+            var result = e.options[e.selectedIndex].value;
+            
+            let name = el.split("_checkbox")[0]
+            console.log(name)
 
-        var e = document.getElementById("select_{{model}}");
-        var result = e.options[e.selectedIndex].value;
-        params['{{model}}_id']= result;
+            params[name+'_id']= result;
+        })
+        console.log(params)
 
     }
     
     {{/references}}
-    let route = oFormElement.action +{{id}}
-    console.log(route)
+  
     var xhr = new XMLHttpRequest();
     xhr.onerror = function(){ alert (xhr.responseText); } // failure case
-    xhr.open ('put', route, true);
+    xhr.open (oFormElement.method, oFormElement.action, true);
     xhr.setRequestHeader( "Content-Type", "application/json" );
     xhr.send (JSON.stringify(params));
 }
-
 
 {{#hasReferences}}
     function loadValues(model, label, controlId, isManyToMany,values){
@@ -74,6 +99,8 @@ function submitForm(oFormElement){
                         data.map(row => {
                                 var checkbox = document.createElement("input");
                                 checkbox.type = "checkbox"; 
+                                checkbox.className = model+"_checkbox";
+
                                 checkbox.value = row['id'];
                                 checkbox.id = "checkbox_"+ row['id']; 
                                 if(obj){
@@ -98,6 +125,8 @@ function submitForm(oFormElement){
                 }else{ 
                     var select = document.createElement("select");
                     select.id = 'select_'+model ;
+                    select.className = 'select_'+model ;
+
                     data.forEach(row => {
                         var option = document.createElement("option");
                         option.text = row[label];
