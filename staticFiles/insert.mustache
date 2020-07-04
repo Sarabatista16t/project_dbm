@@ -41,9 +41,11 @@ function submitForm(oFormElement){
         }
         classes.forEach((el)=>{
             console.log("CLASS NAME "+el)
-            var e = document.querySelectorAll( '.'+el);
+            var e = document.querySelector( '.'+el);
+            console.log(e.options)
+            console.log(e.selectedIndex)
             var result = e.options[e.selectedIndex].value;
-            
+
             let name = el.split("_checkbox")[0]
             console.log(name)
 
