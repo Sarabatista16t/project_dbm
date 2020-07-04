@@ -1,0 +1,23 @@
+{
+    "title": "Company",
+    "description": "Represents a producer's or record label's company",
+    "type": "object",
+    "properties": {
+        "name": {
+            "description": "Company's name",
+            "type": "string",
+            "maxLength": 128,
+            "faker": "company.companyName"
+        },
+        "address": {
+            "description": "Company's address",
+            "type": "string",
+            "maxLength": 256,
+            "faker": "address.streetAddress"
+        }
+    },
+    "required": [
+        "name",
+        "address"
+    ]
+}

@@ -1,0 +1,113 @@
+<html>
+<head>
+<script>
+function submitForm(oFormElement){
+  var params = { 
+        {{#properties}} 
+        {{name}}:  document.querySelector('#id_{{name}}').value,
+        {{/properties}}
+    };
+    {{#references}}
+    if({{isManyToMany}}){
+        var checkboxes = []
+        var list = document.querySelectorAll( 'input[type=checkbox]' );
+        for (var item of list) {
+            console.log(item.value)
+            if(item.checked){
+                checkboxes.push(item.value)
+            } 
+        }
+        params['{{model}}_id']= checkboxes;
+
+    }else{
+        console.log("SUP")
+        var e = document.getElementById("select_{{model}}");
+        var result = e.options[e.selectedIndex].value;
+        params['{{model}}_id']= result;
+
+    }
+    
+    {{/references}}
+  
+    var xhr = new XMLHttpRequest();
+    xhr.onerror = function(){ alert (xhr.responseText); } // failure case
+    xhr.open (oFormElement.method, oFormElement.action, true);
+    xhr.setRequestHeader( "Content-Type", "application/json" );
+    xhr.send (JSON.stringify(params));
+}
+
+
+{{#hasReferences}}
+    function loadValues(model, label, controlId, isManyToMany){
+        let route = '/api/'+model;
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", route, true);
+        xhr.onreadystatechange = function () {
+            if(xhr.readyState === 4 && xhr.status === 200) {
+                var control = document.getElementById(controlId);
+                var data = JSON.parse(this.responseText);
+
+                if(isManyToMany){
+                   if(data.constructor === Array){ 
+                        data.map(row => {
+                                var checkbox = document.createElement("input");
+                                checkbox.type = "checkbox"; 
+                                checkbox.value = row['id'];
+                                checkbox.id = "checkbox_"+ row['id']; 
+                                var l = document.createElement('label');                 
+                                l.htmlFor ="checkbox_"+ row['id'];                             
+                                l.appendChild(document.createTextNode(row[label])); 
+                                control.appendChild(checkbox); 
+                                control.appendChild(l); 
+                           
+                        });
+                    }
+                }else{ 
+                    var select = document.createElement("select");
+                    select.id = 'select_'+model ;
+                    data.forEach(row => {
+                        console.log(row)
+                        console.log(label)
+                        var option = document.createElement("option");
+                        option.text = row[label];
+                        option.value = row['id'];
+                        select.add(option);
+                    });
+                    control.appendChild(select);
+                }
+            }
+        }
+        xhr.send();
+    }
+    window.onload = function() {
+        {{#references}}
+        console.log({{isManyToMany}})
+        loadValues('{{model}}','{{label}}','div{{model}}value', {{isManyToMany}});
+        {{/references}}
+    }
+ {{/hasReferences}}
+
+
+</script>
+</head>
+    <body>
+     {{>menu}}
+
+    <form method="post" action="/api/{{title}}" onsubmit="return submitForm(this);">
+        Insert {{title}}
+    {{#properties}}
+        <div>
+        <label>{{name}} {{^required}} * {{/required}}:</label>
+                <input   id="id_{{name}}" name="{{name}}" {{#restrictions}} {{restriction}}='{{val}}' {{/restrictions}} {{^required}} required {{/required}} />
+        </div>
+    {{/properties}}
+    {{#references}}
+        <label>{{model}}:</label>
+        <div id="div{{model}}value"></div>
+    {{/references}}
+
+    <input type="submit" value="Save"/>
+    </form>
+ </body>
+
+</html>

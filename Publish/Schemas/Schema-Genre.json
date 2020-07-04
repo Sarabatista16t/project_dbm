@@ -1,0 +1,16 @@
+{
+    "title": "Genre",
+    "description": "Represents the genre of the music",
+    "type": "object",
+    "properties": {
+        "genre": {
+            "description": "Music's genre",
+            "type": "string",
+            "maxLength": 128,
+            "faker": "random.word"
+        }
+    },
+    "required": [
+        "genre"
+    ]
+}

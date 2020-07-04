@@ -1,161 +1,147 @@
-const sqlite3 = require('sqlite3').verbose()
-var mustache = require('mustache')
-var fs = require('fs')
-var Promise = require('promise')
+const sqlite3 = require('sqlite3').verbose();
+var mustache = require('mustache');
+var fs = require("fs");
 
+const path = require('path');
 
-
-/*
-  Returns a dictionary with all the constrains an attribute has.
-*/
 function getConstraints(attribute, name, is_not_null) {
-  var constraints = {}
+    var constraints = {}
+    for (const key in attribute) {
+        if (key == "type") {
+            if (attribute[key] == "integer")
+                constraints[key] = "integer";
+            if (attribute[key] == "string")
+                constraints[key] = "text";
+        }
+        if (key == "unique")
+            constraints[key] = "UNIQUE";
+        if (key == "maxLength")
+            constraints[key] = "CHECK( LENGTH(" + name + ") <= " + attribute[key] + ")";
+        if (key == "minimum")
+            if (constraints["maximum"]) {
+                var value = attribute["maximum"];
+                delete constraints["maximum"]
+                constraints["min_max"] = "CHECK(" + name + ">=" + attribute[key] + " and " + name + "<=" + value + ")";
+            } else {
+                constraints[key] = "CHECK(" + name + ">=" + attribute[key] + ")";
+            }
+        if (key == "maximum")
+            if (constraints["minimum"]) {
+                var value = attribute["minimum"];
+                delete constraints["minimum"]
+                constraints["min_max"] = "CHECK(" + name + ">=" + value + " and " + name + "<=" + attribute[key] + ")";
 
-  for (const key in attribute) {
-    //Chack attributes typy
-    if (key == 'type') {
-      if (attribute[key] == 'integer') { constraints[key] = 'INTEGER' }
-      if (attribute[key] == 'string') { constraints[key] = 'text' }
+            } else {
+                constraints[key] = "CHECK(" + name + "<=" + attribute[key] + ")";
+            }
     }
+    if (is_not_null)
+        constraints["not_null"] = "NOT NULL";
 
-    //Checks remaning contraints
-    if (key == 'unique') { constraints[key] = 'UNIQUE' }
-    if (key == 'maxLength') { constraints[key] = 'CHECK( LENGTH(' + name + ') <= ' + attribute[key] + ')' }
-    if (key == 'minimum') {
-      //Checks if this is a case where there are both a minimum and a maximun  contraints
-      if (constraints.maximum) {
-        var value = attribute.maximum
-        delete constraints.maximum
-        constraints.min_max = 'CHECK(' + name + '>=' + attribute[key] + ' and ' + name + '<=' + value + ')'
-      } else {
-        constraints[key] = 'CHECK(' + name + '>=' + attribute[key] + ')'
-      }
-    }
-    if (key == 'maximum') {
-      //Checks if this is a case where there are both a minimum and a maximun  contraints
+    return constraints;
 
-      if (constraints.minimum) {
-        var value = attribute.minimum
-        delete constraints.minimum
-        constraints.min_max = 'CHECK(' + name + '>=' + value + ' and ' + name + '<=' + attribute[key] + ')'
-      } else {
-        constraints[key] = 'CHECK(' + name + '<=' + attribute[key] + ')'
-      }
-    }
-  }
-  //Checks if the given attribute is not null
-  if (is_not_null) { constraints.not_null = 'NOT NULL' }
-  return constraints
 }
 
-
-/*
-Generates the text of the script for creating a table for a giving schema
-*/
 function createTable(schema) {
-  var elementConstraint = []
-  var counter = 0
+    var elementConstraint = []
+    var counter = 0;
+    for (const element in schema.properties) {
+        const attr = element.replace(" ", "_");
 
+        var values = {};
+        values["name"] = attr;
 
-  // Goes thro all the attributes of the schema
-  for (const element in schema.properties) {
-    var attribute = element
-    while (attribute.includes(' ')) {
-      attribute = attribute.replace(' ', '_')
+        let aux = getConstraints(schema.properties[element], attr, schema.required.includes(element));
+        var keys = [];
+        for (const key in aux) {
+            keys.push(aux[key]);
+        }
+        values["constraints"] = keys.join(" ");
+        values["last"] = !(counter < Object.keys(schema.properties).length - 1);
+        elementConstraint.push(values);
+        counter++;
     }
-    var values = {}
-    values.name = attribute
+    var view = {
+        table_name: schema.title,
+        attributes: elementConstraint,
+        attribute: function() { return this.name },
+        constraints: function() { return this.constraints },
+        last: function() { return this.last }
 
-    // get all the constraints for the current attribute
-    const constrains = getConstraints(schema.properties[element], attribute, schema.required.includes(element))
+    };
 
-
-
-    //Push all the constraints into an array to later join the array and get a string with the constraints values
-    var keys = []
-    for (const key in constrains) {
-      //Gets the constrait value for the current key
-      keys.push(constrains[key])
-    }
-    values.constraints = keys.join(' ')
-
-
-    //Check if the current attribute is the last one in the given schema
-    values.last = !(counter < Object.keys(schema.properties).length - 1)
-    elementConstraint.push(values)
-    counter++
-  }
-
-
-  /*
-  Remove all spaces in the schema title 
-  EX: input: 'nome do schema'
-      output: 'nome_do_schema'
-  */
-  var schemaName = schema.title
-  while (schemaName.includes(' ')) {
-    schemaName = schemaName.replace(' ', '_')
-  }
-
-  var view = {
-    table_name: schemaName,
-    attributes: elementConstraint,
-    attribute: function () { return this.name },
-    constraints: function () { return this.constraints },
-    last: function () { return this.last }
-
-  }
-
-  return view
-}
-
-/*
-Render a script with the data for table creation. After it's rendered, call the callback on the output from the mustache.render
-*/
-function renderTable(schemas, _callback) {
-  var stmt = new Array();
-
-  if (Array.isArray(schemas)) {
-    for (const element of schemas) {
-      fs.readFile('./database/dbscript.mustache', function (err, data) {
-        _callback(mustache.render(data.toString(), createTable(element)))
-      })
-    }
-  } else {
-    fs.readFile('./database/dbscript.mustache', function (err, data) {
-      _callback(mustache.render(data.toString(), createTable(schemas)))
-    })
-  }
+    return view;
 
 }
 
+module.exports.relations = function generateRelations(db, element) {
+    if (element.references) {
+        let references = element.references
+        references.forEach((elem) => {
+            let tableReferences = elem['model'];
+            let relationType = elem['relation'];
+            let view = {
+                tablename: element.title,
+                tableReferences: tableReferences
+            }
 
-module.exports = async function (dbname, schemas) {
-  //Awaits for the script for creating tables, for every given schema
-  var stmt = await renderTable(schemas, (stmt) => {
+            if (relationType === '1-M') {
+                fs.readFile('./database/one-to-many.mustache', function(err, data) {
+                    var output = mustache.render(data.toString(), view);
+                    db.run(output)
+                });
+            } else if (relationType === '1-1') {
+                fs.readFile('./database/one-to-many.mustache', function(err, data) {
+                    var output = mustache.render(data.toString(), view);
 
-    //Once the render is complete
+                    db.run(output)
+                });
 
-    //Open database
-    var db = new sqlite3.Database(dbname, (err) => {
+            } else if (relationType === 'M-M') {
+                view['tableMany'] = (element.title < tableReferences) ?
+                    element.title + "_" + tableReferences : tableReferences + "_" + element.title
+                fs.readFile('./database/many-to-many.mustache', function(err, data) {
+                    var output = mustache.render(data.toString(), view);
+                    db.run(output)
+                });
+            }
 
-      if (err) {
-        console.log(err.message)
-      }
+        })
+    }
+}
 
-      // Run rendered script
-      db.serialize(() => {
-        db.run(stmt, function () { if (err) console.log(err) })
-      });
-
-    })
-    //Close database
-    db.close((err) => {
-      if (err) {
-        return console.error(err.message);
-      }
+module.exports.generate = function generate(dbpath, dbname, schemas, callback) {
+    let db = new sqlite3.Database(dbpath, (err) => {
+        if (err) {
+            console.error(err.message);
+        }
 
     });
-  })
-}
+    db.serialize(() => {
+        //CREATE TABLES
+        if (Array.isArray(schemas)) {
+            schemas.forEach(element => {
+                if (element)
+                    fs.readFile('./database/dbscript.mustache', function(err, data) {
+                        var output = mustache.render(data.toString(), createTable(element));
+                        db.run(output)
+                        callback(db, element)
 
+                    });
+
+            });
+        } else {
+            var view = createTable(dbname, schemas);
+            fs.readFile('./database/dbscript.mustache', function(err, data) {
+                var output = mustache.render(data.toString(), view);
+                db.run(output);
+                callback(db, schemas)
+
+            });
+        }
+
+
+
+    });
+
+}

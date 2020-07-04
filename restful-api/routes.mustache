@@ -1,52 +1,84 @@
-const express = require("express");
-
-const router = express.Router();
+var express = require('express');
+var router = express.Router();
+const path = require('path');
 
 {{#models}}
 
 var {{name}} = require("../Models/{{name}}.js");
 
 
-router.post("/api/{{name}}", function (req,res){
+router.post("/{{name}}", function (req,res){
     var al = Object.assign(new {{name}}(),req.body);
     al.save(function(result){
-      res.send();
+      res.send(result);
     });
-
-    
 });
 
-router.get("/api/{{name}}", function(req,res){
+router.get("/{{name}}", function(req,res){
     var rows = {{name}}.all(
     function(result){
-        res.json(result);
+        var r = [];
+        for(var i in result){
+            var key = result[i];
+            var prop = Object.getOwnPropertyNames(key);
+            var elem ={}
+            prop.forEach((p)=>{
+                elem[p]=(key[p])
+            })
+            r.push(elem)
+        }
+        res.json(r);
     });
 });
 
-router.get('/api/{{name}}/:id', function (req, res) {
+router.get('/{{name}}/:id', function (req, res) {
    {{name}}.get(req.params.id,
        function(result){
-        res.json(result);
+         var r = [];
+        for(var i in result){
+            var key = result[i];
+            var prop = Object.getOwnPropertyNames(key);
+            var elem ={}
+            prop.forEach((p)=>{
+                elem[p]=(key[p])
+            })
+            r.push(elem)
+        }
+        res.json(r);
     });
 }); 
 
-router.put("/api/{{name}}/:id",function(req, res){
-    var aux = {"id": parseInt(req.params.id)};
-    var al = Object.assign(new {{name}}(), aux, req.body);
-    al.save(function(result){
-        res.json(result);
-    });
+router.put("/{{name}}/:id",function(req, res){
+    {{name}}.get(req.params.id, (obj)=>{
+        var o = obj[0]
+        var data = {};
+        Object.getOwnPropertyNames(o).forEach((val,index,arr)=>{
+            data[val]= o[val];
+        }) 
+        var al = Object.assign(new {{name}}(),data, req.body);
+        al.save(function(result){
+            res.json(result);
+        });
+    })
+    
 
     
 });
 
-router.delete("/api/{{name}}/:id", function(req,res){
+router.delete("/{{name}}/:id", function(req,res){
     {{name}}.delete(req.params.id,
        function(result){
         res.json(result);
     });
 })
 
+router.get('/{{name}}/:model/:id', function (req, res) {
+    {{name}}.many(req.params.model, req.params.id, (rows) => {
+        res.json(rows)});
+});
+
+
 {{/models}}
 
-module.exports = router;
+
+module.exports = router

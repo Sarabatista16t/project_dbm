@@ -1,0 +1,30 @@
+{
+    "title": "Social Media",
+    "description": "Represents the social media",
+    "type": "object",
+    "properties": {
+        "name": {
+            "description": "Social Media's name",
+            "type": "string",
+            "maxLength": 128,
+            "faker": "random.word"
+        },
+        "base link": {
+            "description": "Social Media's's base link",
+            "type": "string",
+            "maxLength": 256,
+            "faker": "system.filePath"
+        },
+        "icon": {
+            "description": "Social Media's's icon",
+            "type": "string",
+            "maxLength": 128,
+            "faker": "image.imageUrl"
+        }
+    },
+    "required": [
+        "name",
+        "base link",
+        "icon"
+    ]
+}

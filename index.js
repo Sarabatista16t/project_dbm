@@ -1,33 +1,30 @@
-var fs = require('fs')
-var childProcess = require('child_process')
-var mustache = require('mustache')
+var fs = require("fs");
+var childProcess = require('child_process');
 
-//Read config file
-var config = JSON.parse(fs.readFileSync('./Server/config.json'))
+var del = require("del");
+var mkdirp = require("mkdirp")
 
-//Get schemas name and path. Alter schemas' name
-var schemas = config.schemas.map(element => {
-  /*
-  Remove all spaces in the schema title 
-      EX: input: 'nome do schema'
-          output: 'nome-do-schema'
-  */
-  let schemaName = element.name;
-  while (schemaName.includes(' ')) {
-    schemaName = schemaName.replace(' ', '-')
-  }
+var config = JSON.parse(fs.readFileSync("./Server/config.json"));
+var mustache = require('mustache');
 
-  return { name: schemaName, path: element.path }
+del.sync(['Publish']);
+
+fs.mkdir("./Publish", function() {
+    fs.mkdir("./Publish/Schemas", function() {});
+    fs.mkdir("./Publish/Views", function() {});
+    fs.mkdir("./Publish/Database", function() {});
+    fs.mkdir("./Publish/Models", function() {});
+    fs.mkdir("./Publish/Controllers", function() {});
+    fs.mkdir('./Publish/Public', function() {
+        fs.mkdir('./Publish/Public/Css', function() {});
+        fs.mkdir('./Publish/Public/Js', function() {});
+        fs.mkdir('./Publish/Public/images', function() {});
+        fs.writeFile('Publish/Public/index.js', fs.readFileSync("./index.js"), function() {});
+    });
+
 });
-
-//Replace config's schemas for new schemas
-config.schemas = schemas;
-
-//Render output for creating the server
-
-fs.readFile('./Server/server.mustache', function (err, data) {
-  var output = mustache.render(data.toString(), config)
-  fs.writeFileSync('./Server/server.js', output)
-})
-//Run the server file
-childProcess.fork('./Server/server.js')
+fs.readFile('./Server/server.mustache', function(err, data) {
+    var output = mustache.render(data.toString(), config);
+    fs.writeFileSync('./Server/server.js', output);
+    childProcess.fork('./Server/server.js');
+});

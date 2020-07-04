@@ -1,0 +1,35 @@
+var express = require('express');
+var router = express.Router();
+const path = require('path');
+
+{{#frontoffice}}
+var {{model}} = require("../Models/{{model}}.js");
+{{/frontoffice}}
+var homeRoutes = ['/Home','/']
+router.get(homeRoutes, function (req, res) {  
+    {{#frontoffice}}
+
+    {{model}}.top('{{property}}',' {{order}}', {{limit}},
+   
+        (rows)=>{      
+            console.log(rows)
+
+            res.render('home.mustache',  {
+                rows: rows.map(obj => {
+                    return { properties: Object.keys(obj).map(key => {
+                        return {
+                            name: key,
+                            value: obj[key]
+                        }
+                    })
+                }}),
+                columns: Object.keys(new {{model}}()).map(key => {
+                    return { name: key }
+                }),
+            })
+        }
+    );
+    {{/frontoffice}}
+
+});
+module.exports = router;

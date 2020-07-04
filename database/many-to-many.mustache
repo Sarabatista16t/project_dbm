@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS {{tableMany}} (
+{{tablename}}_id INTEGER   REFERENCES {{tablename}}(id),
+{{tableReferences}}_id INTEGER   REFERENCES {{tableReferences}}(id),
+PRIMARY KEY ({{tablename}}_id,{{tableReferences}}_id)
+);

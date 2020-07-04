@@ -1,6 +1,6 @@
-var database = require("../Database/sqlite-wrapper.js")('{{{dbname}}}')
+var sqlitewrapper = require("../Database/sqlite-wrapper.js")('{{{dbname}}}')
  
-const schema{{classTitle}} = require('../Schemas/Schema-{{schemaTitle}}.json');
+const schema{{classTitle}} = require('../Schemas/Schema-{{classTitle}}.json');
 
 const jsf = require('json-schema-faker');
 const faker = require('faker');
@@ -12,44 +12,109 @@ class {{classTitle}} {
     {{#classConstructor}}
     this.{{name}} = {{name}};
     {{/classConstructor}}  
-    this.id = id;
 
     {{#classEnumerables}}
-        Object.defineProperty(this,"{{name}}", { enumerable: false });
+    Object.defineProperty(this,"{{name}}", { enumerable: false });
     {{/classEnumerables}} 
-        Object.defineProperty(this,"id", { enumerable: false });
+    {{#fkexists}}
+    Object.defineProperty(this, "{{model}}_id", { enumerable: false, writable: true });
+    {{/fkexists}} 
+    Object.defineProperty(this,"id", { enumerable: false, writable: true });
 
 }
-
-//Generate an object from the json faker from the correspondent schema
 static create() {
  return Object.assign(new {{classTitle}}(), jsf.generate(schema{{classTitle}}));
 }
-
-
-
+/////////////
 static all (callback){
-    database.where("SELECT * FROM {{{classTitle}}}", [], {{classTitle}}, callback)
+    sqlitewrapper.where("SELECT * FROM {{{classTitle}}}", [], {{classTitle}}, callback)
 }
  
 static get(id, callback){
-    database.where("SELECT * FROM {{{classTitle}}} WHERE id = ?", [id], {{classTitle}}, callback)
+    sqlitewrapper.where("SELECT * FROM {{{classTitle}}} WHERE id = ?", [id], {{classTitle}}, callback)
 }
 static delete(id, callback) {
-    database.run("DELETE FROM Aluno WHERE id = ?", [id], callback)
+    sqlitewrapper.run("DELETE FROM {{{classTitle}}} WHERE id = ?", [id], callback)
+}
+static many(model,id, callback){
+    let tablename = ('{{classTitle}}' < model) ? '{{classTitle}}'+ "_" + model : model + "_" +'{{classTitle}}' ;
+    sqlitewrapper.where("SELECT * FROM {{classTitle}} INNER JOIN  "+tablename+" ON "+tablename+".{{classTitle}}_id = {{classTitle}}.id WHERE  "+tablename+"."+model+"_id = ?", [id],{{classTitle}}, callback);
+}
+
+static top(property,order,limit,callback){
+    sqlitewrapper.where("SELECT * FROM {{classTitle}} ORDER BY "+property+" "+order+" LIMIT "+limit, [], {{classTitle}}, callback);
 }
 
 save(callback){
-    console.log("QWERT")
-    console.log("ID"+this.id)
     if(this.id){
-        console.log("IF")
-        database.run("UPDATE {{{classTitle}}} SET {{#classConstructor}} {{name}} =? {{^last}},{{/last}} {{/classConstructor}} WHERE id = ?", [{{#classConstructor}} this.{{name}},{{/classConstructor}} this.id], callback)
-    }else{
-                console.log("else")
+        sqlitewrapper.run("UPDATE {{{classTitle}}} SET {{#classConstructor}} {{name}} =? {{^last}},{{/last}} {{/classConstructor}} WHERE id = ?", [{{#classConstructor}} this.{{name}},{{/classConstructor}} this.id], 
+          {{#fkexists}}
+            (res)=>{  
+                if(this.{{model}}_id){
+                    if('{{type}}'== '1-M'){  
+                        // 1-M relations
+                        sqlitewrapper.run("UPDATE {{{classTitle}}} SET  {{model}}_id =?  WHERE id = ?", [ this.{{model}}_id, this.id], callback); 
+                    } else if('{{type}}'== 'M-M'){  
+                    //M-M relations
+                        sqlitewrapper.run("DELETE FROM {{classT}} WHERE {{classTitle}}_id= ?", [this.id], ()=>{
+                            if(Array.isArray(this.{{model}}_id)){
+                                sqlitewrapper.run("INSERT INTO {{classT}} ({{classTitle}}_id, {{model}}_id) values "+ Array(this.{{model}}_id.length).fill("(?,?)").join(","), repeatValues(this.{{model}}_id, this.id), callback); 
+                            }else{
+                                sqlitewrapper.run("INSERT INTO {{classT}} ({{classTitle}}_id, {{model}}_id) values (?,?)",  [this.id, this.{{model}}_id], callback); 
+                            }
+                        }); 
+                       
+                   
+                    }
+                }else{
+                    callback()
+                }
+            }
+            {{/fkexists}}
+            {{#fknotexists}}
+            callback
+            {{/fknotexists}}
+      )
 
-        database.run("INSERT INTO {{{classTitle}}} ({{#classConstructor}} {{name}}{{^last}},{{/last}} {{/classConstructor}}) values ({{{questionmark}}})", [{{#classConstructor}} this.{{name}} {{^last}},{{/last}} {{/classConstructor}}]) 
-    }
+    }else{
+        sqlitewrapper.run("INSERT INTO {{{classTitle}}} ({{#classConstructor}} {{name}}{{^last}},{{/last}} {{/classConstructor}}) values ({{{questionmark}}})", [{{#classConstructor}} this.{{name}} {{^last}},{{/last}} {{/classConstructor}}],
+            {{#fkexists}}
+            (res)=>{  
+                if(this.{{model}}_id && res.lastId){
+                    if('{{type}}'== '1-M'){  
+                        // 1-M relations
+                        sqlitewrapper.run("UPDATE {{{classTitle}}} SET  {{model}}_id =?  WHERE id = ?", [ this.{{model}}_id, res.lastId], callback); 
+                    } else if('{{type}}'== 'M-M'){  
+                    //M-M relations
+                        if(Array.isArray(this.{{model}}_id)){
+                            sqlitewrapper.run("INSERT INTO {{classT}} ({{classTitle}}_id, {{model}}_id) values "+ Array(this.{{model}}_id.length).fill("(?,?)").join(","), repeatValues(this.{{model}}_id, res.lastId), callback); 
+                        }else{
+                            sqlitewrapper.run("INSERT INTO {{classT}} ({{classTitle}}_id, {{model}}_id) values (?,?)",  [res.lastId, this.{{model}}_id], callback); 
+                        }
+                   
+                    }
+                }else{
+                    callback()
+                }
+            }
+            {{/fkexists}}
+            {{#fknotexists}}
+            callback
+            {{/fknotexists}}
+
+      )
+  
+    
+    } 
+     function repeatValues(arr, stat){
+        var arrFinal = []
+       arr.forEach((elem)=>{
+            arrFinal.push(stat);
+            arrFinal.push(elem)
+        })
+        return arrFinal;
+    }    
+    
 } 
 
 }

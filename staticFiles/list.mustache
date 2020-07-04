@@ -1,0 +1,73 @@
+<html>
+   
+<head> <title>{{title}}</title>
+<script>  
+function search(input, tdname ) {
+    console.log(tdname)
+    var filter = input.value.toUpperCase();
+    var table = document.getElementById("table");
+    var tr = table.getElementsByTagName("tr");
+    var firstRow = tr[0];
+    var searchIndex= 0;
+    for(i=0;i<firstRow.length;i++){
+        var td = tr[i].getElementsByTagName("td")[i];
+        var txtValue = td.textContent || td.innerText;
+        if(txtValue == tdname ) searchIndex = i
+    }
+    for (i = 0; i < tr.length; i++) {    
+        var td = tr[i].getElementsByTagName("td")[searchIndex]; //deverão alterar esta função para percorrer todos os TD que vos interessae não apenas o 1º
+        if (td) {
+            var txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    }
+</script>
+    </head>
+    <body>
+         {{>menu}}
+
+       <h1> <a type="button" href="{{title}}/Insert" title="Insert" {{#events}} {{name}}="javascript: {{function}}({{args}})" {{/events}}>Insert</a></h1>
+        <hr>    
+
+        <table id="table">
+            <tr>
+                {{#columns}}
+
+                <input type="text" id="inputSearch" onkeyup="search(this, '{{.}}')" placeholder="{{.}}">
+                {{/columns}}
+            </tr>
+            <tr>
+                {{#columns}}
+                <th>{{name}}</th>
+                {{/columns}}
+            </tr>
+             
+            {{#rows}}
+            <tr>
+                {{#properties}}
+                <td>{{.}}</td>
+                {{/properties}}
+            
+            {{#actions}}
+                <td>
+                    <a href="{{link}}" title="{{tooltip}}" {{#events}} {{name}}="javascript: {{function}}({{args}})" {{/events}} >
+                    {{#image}}
+                        <img src="{{src}}" alt="{{alt}}" />
+
+                    {{/image}}
+                    </a>
+                </td>
+            {{/actions}}
+            </tr> 
+            {{/rows}}
+        </table>
+    
+
+    
+    </body>
+</html>

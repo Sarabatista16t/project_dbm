@@ -1,0 +1,226 @@
+var express = require('express');
+var router = express.Router();
+const path = require('path');
+
+var menu = []
+{{#schemas}}
+var {{title}} = require("../Models/{{title}}.js");
+var schema{{title}} = require('../Schemas/Schema-{{title}}.json');
+
+var data = {
+    href: '/backoffice/{{title}}',
+    name: '{{title}}'
+}
+menu.push(data)
+
+router.get('/{{title}}', function (req, res) {  
+    var m{{title}} = {{title}}.create()
+     m{{title}}.save((rowsAffected)=>{
+    {{title}}.all(
+        (rows)=>{      
+
+            var view = {
+                title: '{{title}}',
+                menu:menu,
+                columns:{{{columns}}},
+                 rows: rows.map(obj => {
+                    return {
+                        properties: Object.keys(obj).map(key => obj[key]),
+                        actions: [{
+                                    link: './{{title}}/Details/' + obj.id,
+                                    image:{ src:'../Public/images/read.png', alt: 'read' },
+                                    tooltip: 'Details'
+                                }, {
+                                    link: './{{title}}/Edit/' + obj.id,
+                                    image: { src: '../Public/images/edit.png', alt: 'edit' },
+                                    tooltip: 'Edit'
+                                }, {
+                                    link: '#',
+                                    image: { src: '../Public/images/delete.png', alt: 'delete'},
+                                    tooltip: 'Delete',
+                                    events: [{
+                                        name: "onclick",
+                                        function: "remove",
+                                        args: obj.id
+                                }]
+                            }]
+                    }
+                   
+                })
+            }
+                res.render('list.mustache', view)
+            }
+    );
+    });
+ 
+})
+
+
+router.get('/{{title}}/Insert', function (req, res) {  
+    let prop = [];
+    let aux = {{title}}.create();
+    Object.getOwnPropertyNames(aux).forEach((val,index,arr)=>{
+        prop.push(
+            {"name": val,
+             "required": !Object.keys(aux).includes(val),
+             "restrictions": getSchemaRestrictions(schema{{title}}['properties'][val])
+             })
+    })
+    prop = removeNoSchemaProperties(schema{{title}}, prop);
+    let view = {
+        title:'{{title}}',
+        properties: prop,
+        name: function(){return this},
+        value: function(){return this},
+        restrictions: function(){return this},
+        menu:menu,
+        references: function () {
+            var allRefs = [];
+            if (schema{{title}}.references) {
+                schema{{title}}.references.forEach(function (ref) {
+                allRefs.push({
+                    label: ref.label,
+                    model: ref.model,
+                    isManyToMany: ref.relation == "M-M" ? true :false,
+                });
+            });
+            }  
+            return allRefs;
+        },
+        get hasReferences() {
+            return this.references().length > 0;
+        }
+    }
+    
+    res.render('insert.mustache', view)
+    
+})
+
+router.get('/{{title}}/Edit/:id', function (req, res) {  
+  var id = req.params.id;
+    {{title}}.get(id, (obj)=>{
+        let prop = [];
+        obj = obj[0]
+        Object.getOwnPropertyNames(obj).forEach((val,index,arr)=>{
+        prop.push(
+            {"name": val,
+             "required": !Object.keys(obj).includes(val),
+             "value": obj[val],
+             "restrictions": getSchemaRestrictions(schema{{title}}['properties'][val])
+             }
+            )
+        })
+        prop = removeNoSchemaProperties(schema{{title}}, prop);
+
+        let view = {
+            title:'{{title}}',
+            id:id,
+            properties: prop,
+            name: function(){return this},
+            value: function(){return this},
+            restrictions: function(){return this},
+            menu:menu,
+            references: function () {
+                var allRefs = [];
+                if (schema{{title}}.references) {
+                    schema{{title}}.references.forEach(function (ref) {
+                    allRefs.push({
+                        label: ref.label,
+                        model: ref.model,
+                        isManyToMany: ref.relation == "M-M" ? true :false,
+                        values: ref.relation === "M-M" ? '/{{title}}/' + req.params.id : "/"+obj[(ref.model + "_id")]
+
+                    });
+                });
+                }  
+                return allRefs;
+            },
+            get hasReferences() {
+                return this.references().length > 0;
+            }
+        }
+
+    res.render('edit.mustache', view)
+    })
+})
+
+router.get('/{{title}}/Details/:id', function (req, res) {
+    {{title}}.get(req.params.id, function (obj) {
+        let prop = [];
+        obj = obj[0]
+        Object.getOwnPropertyNames(obj).forEach((val,index,arr)=>{
+        prop.push(
+            {"name": val,
+             "value": obj[val],
+             })
+        })
+        let view = {
+            properties: prop,
+            name: function(){return this},
+            value: function(){return this},
+            menu:menu,
+            references: function () {
+                var allRefs = [];
+                if (schema{{title}}.references) {
+                    schema{{title}}.references.forEach(function (ref) {
+                    allRefs.push({
+                        labelRef: ref.label,
+                        model: ref.model,
+                        values: ref.relation === "M-M" ? '/{{title}}/' + req.params.id : obj[(ref.model + "_id")]
+                    });
+                });
+                }  
+                return allRefs;
+            },
+            get hasReferences() {
+                return this.references().length > 0;
+            }
+        }
+
+        res.render('details', view )
+    });
+});
+
+
+{{/schemas}}
+
+
+function removeNoSchemaProperties(schemaProp, propArr){
+    return propArr.filter(elem=> Object.keys(schemaProp.properties).includes(elem.name))
+}
+
+function getSchemaRestrictions(properties){
+    var aux = [];
+    if(properties){
+        if(properties['type'])  aux.push(getInputType(properties['type']))
+        if(properties['maximum'])  aux.push(getMax(properties['maximum']))
+        if(properties['minimum:'])  aux.push(getMin(properties['minimum']))
+        if(properties['maxLength'])  aux.push(getMaxLength(properties['maximum']))
+    }
+    return aux
+}
+
+function getInputType(jstype){
+    if(jstype == 'number' || jstype == 'integer'){
+    return {'restriction': 'type', 'val': 'number'}
+    }else{
+          return {'restriction': 'type', 'val': 'text'}
+
+    }
+}
+
+function getMax(val){
+    return {'restriction': 'max', 'val': val}
+}
+
+function getMin(val){
+    return {'restriction': 'min', 'val': val}
+}
+
+function getMaxLength(val){
+    return {'restriction': 'maxLength', 'val': val}
+}
+
+
+
+module.exports = router;
