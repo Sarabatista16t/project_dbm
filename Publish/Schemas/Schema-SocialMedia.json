@@ -1,5 +1,5 @@
 {
-    "title": "Social Media",
+    "title": "SocialMedia",
     "description": "Represents the social media",
     "type": "object",
     "properties": {
@@ -9,22 +9,20 @@
             "maxLength": 128,
             "faker": "random.word"
         },
-        "base link": {
+        "link": {
             "description": "Social Media's's base link",
             "type": "string",
             "maxLength": 256,
             "faker": "system.filePath"
-        },
-        "icon": {
-            "description": "Social Media's's icon",
-            "type": "string",
-            "maxLength": 128,
-            "faker": "image.imageUrl"
         }
     },
     "required": [
         "name",
-        "base link",
-        "icon"
-    ]
+        "link"
+    ],
+    "references": [{
+        "model": "Artist",
+        "relation": "1-M",
+        "label": "name"
+    }]
 }

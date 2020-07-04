@@ -1,4 +1,4 @@
-var database = require("../Database/sqlite-wrapper.js")('./Publish/Database/projeto/projeto.db')
+var sqlitewrapper = require("../Database/sqlite-wrapper.js")('./Publish/Database/projeto/projeto')
  
 const schemaProducer = require('../Schemas/Schema-Producer.json');
 
@@ -7,49 +7,130 @@ const faker = require('faker');
 jsf.extend('faker', () => { return faker });
 
 class Producer {
- constructor (id,name,id_company) {
+ constructor (id,name) {
      
     this.name = name;
-    this.id_company = id_company;
-    this.id = id;
 
-        Object.defineProperty(this,"name", { enumerable: false });
-        Object.defineProperty(this,"id_company", { enumerable: false });
-        Object.defineProperty(this,"id", { enumerable: false });
+    Object.defineProperty(this, "Album_id", { enumerable: false, writable: true });
+    Object.defineProperty(this,"id", { enumerable: false, writable: true });
 
 }
-
-//Generate an object from the json faker from the correspondent schema
 static create() {
  return Object.assign(new Producer(), jsf.generate(schemaProducer));
 }
-
-
-
+/////////////
 static all (callback){
-    database.where("SELECT * FROM Producer", [], Producer, callback)
+    sqlitewrapper.where("SELECT * FROM Producer", [], Producer, callback)
 }
  
 static get(id, callback){
-    database.where("SELECT * FROM Producer WHERE id = ?", [id], Producer, callback)
+    sqlitewrapper.where("SELECT * FROM Producer WHERE id = ?", [id], Producer, callback)
 }
 static delete(id, callback) {
-    database.run("DELETE FROM Aluno WHERE id = ?", [id], callback)
+    sqlitewrapper.run("DELETE FROM Producer WHERE id = ?", [id], callback)
+}
+static many(model,id, callback){
+    let tablename = ('Producer' < model) ? 'Producer'+ "_" + model : model + "_" +'Producer' ;
+    sqlitewrapper.where("SELECT * FROM Producer INNER JOIN  "+tablename+" ON "+tablename+".Producer_id = Producer.id WHERE  "+tablename+"."+model+"_id = ?", [id],Producer, callback);
+}
+
+static top(property,order,limit,callback){
+    sqlitewrapper.where("SELECT * FROM Producer ORDER BY "+property+" "+order+" LIMIT "+limit, [], Producer, callback);
 }
 
 save(callback){
-    console.log("QWERT")
-    console.log("ID"+this.id)
     if(this.id){
-        console.log("IF")
-        database.run("UPDATE Producer SET  name =? ,  id_company =?   WHERE id = ?", [ this.name, this.id_company, this.id], callback)
+        let attr = [];
+       attr.push('name =  ?');
+        let values = '?,'
+        let params =  [ this.name  ];
+        let manymany = [];
+        if(this.Album_id)  {
+            if('1-M' == '1-M'){
+            attr.push('Album_id =  ?');
+            values += '?,';
+            params.push(this.Album_id)
+            }else if('1-M' == 'M-M'){
+                if(Array.isArray(this.Album_id)){
+                    manymany.push({stmt:"INSERT INTO Album_Producer (Producer_id, Album_id) values "+ Array(this.Album_id.length).fill("(?,?)").join(","), params: repeatValues(this.Album_id, this.id)}); 
+                }else{
+                    manymany.push({stmt:"INSERT INTO Album_Producer (Producer_id, Album_id) values (?,?)",  params: [this.id, this.Album_id]}); 
+                }
+            }
+        }
+        params.push(this.id);
+        values = values.slice(0, -1);
+        var l = "UPDATE Producer SET "+attr.join(',')+" WHERE id = ?";
+        sqlitewrapper.run(l,params,()=>{
+            if(manymany.length>0){
+                aux(manymany,callback)
+               
+            }else{
+                callback()
+            }
+            
+        })
     }else{
-                console.log("else")
-
-        database.run("INSERT INTO Producer ( name,  id_company ) values (?,?)", [ this.name ,  this.id_company  ]) 
+        let attr = [];
+ attr.push( 'name');
+        let values = '?,'
+        let params =  [ this.name  ];
+        let manymany = [];
+        if(this.Album_id)  {
+            if('1-M' == '1-M'){
+            attr.push('Album_id');
+            values += '?,';
+            params.push(this.Album_id)
+            }
+        }
+        values = values.slice(0, -1);
+        var l = "INSERT INTO Producer ("+attr.join(',')+") values ("+values+")";
+   
+        sqlitewrapper.run(l,params,(res)=>{
+            manymany = manyTo(this, attr, values, params , res.lastId);
+            if(manymany.length>0){
+                aux(manymany,callback)
+               
+            }else{
+                callback()
+            }
+            
+        })
+  
+     
+   } 
+   function aux(statements, callback){
+        var call = callback;
+        var elem = statements.pop()
+        console.log(elem)
+        if(statements.length>0) call =  aux(statements,callback)
+        sqlitewrapper.run(elem['stmt'],elem['params'] , call)
+    
+   }
+     function repeatValues(arr, stat){
+        var arrFinal = []
+       arr.forEach((elem)=>{
+            arrFinal.push(stat);
+            arrFinal.push(elem)
+        })
+        return arrFinal;
+    }    
+    
+function manyTo(obj,attr, values, params , id){
+    var manymany = []
+        if(obj.Album_id)  {
+           if('1-M' == 'M-M'){
+                if(Array.isArray(obj.Album_id)){
+                    manymany.push({stmt:"INSERT INTO Album_Producer (Producer_id, Album_id) values "+ Array(obj.Album_id.length).fill("(?,?)").join(","), params: repeatValues(obj.Album_id, id)}); 
+                }else{
+                    manymany.push({stmt:"INSERT INTO Album_Producer (Producer_id, Album_id) values (?,?)",  params: [id, obj.Album_id]}); 
+                }
+            }
+        }
+        return manymany
     }
-} 
-
 }
-
+    
+} 
+ 
 module.exports = Producer

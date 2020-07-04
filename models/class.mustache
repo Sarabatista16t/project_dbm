@@ -47,65 +47,77 @@ static top(property,order,limit,callback){
 
 save(callback){
     if(this.id){
-        sqlitewrapper.run("UPDATE {{{classTitle}}} SET {{#classConstructor}} {{name}} =? {{^last}},{{/last}} {{/classConstructor}} WHERE id = ?", [{{#classConstructor}} this.{{name}},{{/classConstructor}} this.id], 
-          {{#fkexists}}
-            (res)=>{  
-                if(this.{{model}}_id){
-                    if('{{type}}'== '1-M'){  
-                        // 1-M relations
-                        sqlitewrapper.run("UPDATE {{{classTitle}}} SET  {{model}}_id =?  WHERE id = ?", [ this.{{model}}_id, this.id], callback); 
-                    } else if('{{type}}'== 'M-M'){  
-                    //M-M relations
-                        sqlitewrapper.run("DELETE FROM {{classT}} WHERE {{classTitle}}_id= ?", [this.id], ()=>{
-                            if(Array.isArray(this.{{model}}_id)){
-                                sqlitewrapper.run("INSERT INTO {{classT}} ({{classTitle}}_id, {{model}}_id) values "+ Array(this.{{model}}_id.length).fill("(?,?)").join(","), repeatValues(this.{{model}}_id, this.id), callback); 
-                            }else{
-                                sqlitewrapper.run("INSERT INTO {{classT}} ({{classTitle}}_id, {{model}}_id) values (?,?)",  [this.id, this.{{model}}_id], callback); 
-                            }
-                        }); 
-                       
-                   
-                    }
+        let attr = [];
+      {{#classConstructor}} attr.push('{{name}} =  ?');{{/classConstructor}}
+        let values = '{{{questionmark}}},'
+        let params =  [{{#classConstructor}} this.{{name}} {{^last}},{{/last}} {{/classConstructor}}];
+        let manymany = [];
+        {{#fkexists}}
+        if(this.{{model}}_id)  {
+            if('{{type}}' == '1-M'){
+            attr.push('{{model}}_id =  ?');
+            values += '?,';
+            params.push(this.{{model}}_id)
+            }else if('{{type}}' == 'M-M'){
+                if(Array.isArray(this.{{model}}_id)){
+                    manymany.push({stmt:"INSERT INTO {{classT}} ({{classTitle}}_id, {{model}}_id) values "+ Array(this.{{model}}_id.length).fill("(?,?)").join(","), params: repeatValues(this.{{model}}_id, this.id)}); 
                 }else{
-                    callback()
+                    manymany.push({stmt:"INSERT INTO {{classT}} ({{classTitle}}_id, {{model}}_id) values (?,?)",  params: [this.id, this.{{model}}_id]}); 
                 }
             }
-            {{/fkexists}}
-            {{#fknotexists}}
-            callback
-            {{/fknotexists}}
-      )
-
+        }
+        {{/fkexists}}
+        params.push(this.id);
+        values = values.slice(0, -1);
+        var l = "UPDATE {{{classTitle}}} SET "+attr.join(',')+" WHERE id = ?";
+        sqlitewrapper.run(l,params,()=>{
+            if(manymany.length>0){
+                aux(manymany,callback)
+               
+            }else{
+                callback()
+            }
+            
+        })
     }else{
-        sqlitewrapper.run("INSERT INTO {{{classTitle}}} ({{#classConstructor}} {{name}}{{^last}},{{/last}} {{/classConstructor}}) values ({{{questionmark}}})", [{{#classConstructor}} this.{{name}} {{^last}},{{/last}} {{/classConstructor}}],
-            {{#fkexists}}
-            (res)=>{  
-                if(this.{{model}}_id && res.lastId){
-                    if('{{type}}'== '1-M'){  
-                        // 1-M relations
-                        sqlitewrapper.run("UPDATE {{{classTitle}}} SET  {{model}}_id =?  WHERE id = ?", [ this.{{model}}_id, res.lastId], callback); 
-                    } else if('{{type}}'== 'M-M'){  
-                    //M-M relations
-                        if(Array.isArray(this.{{model}}_id)){
-                            sqlitewrapper.run("INSERT INTO {{classT}} ({{classTitle}}_id, {{model}}_id) values "+ Array(this.{{model}}_id.length).fill("(?,?)").join(","), repeatValues(this.{{model}}_id, res.lastId), callback); 
-                        }else{
-                            sqlitewrapper.run("INSERT INTO {{classT}} ({{classTitle}}_id, {{model}}_id) values (?,?)",  [res.lastId, this.{{model}}_id], callback); 
-                        }
-                   
-                    }
-                }else{
-                    callback()
-                }
+        let attr = [];
+{{#classConstructor}} attr.push( '{{name}}');{{/classConstructor}}
+        let values = '{{{questionmark}}},'
+        let params =  [{{#classConstructor}} this.{{name}} {{^last}},{{/last}} {{/classConstructor}}];
+        let manymany = [];
+        {{#fkexists}}
+        if(this.{{model}}_id)  {
+            if('{{type}}' == '1-M'){
+            attr.push('{{model}}_id');
+            values += '?,';
+            params.push(this.{{model}}_id)
             }
-            {{/fkexists}}
-            {{#fknotexists}}
-            callback
-            {{/fknotexists}}
-
-      )
+        }
+        {{/fkexists}}
+        values = values.slice(0, -1);
+        var l = "INSERT INTO {{{classTitle}}} ("+attr.join(',')+") values ("+values+")";
+   
+        sqlitewrapper.run(l,params,(res)=>{
+            manymany = manyTo(this, attr, values, params , res.lastId);
+            if(manymany.length>0){
+                aux(manymany,callback)
+               
+            }else{
+                callback()
+            }
+            
+        })
   
+     
+   } 
+   function aux(statements, callback){
+        var call = callback;
+        var elem = statements.pop()
+        console.log(elem)
+        if(statements.length>0) call =  aux(statements,callback)
+        sqlitewrapper.run(elem['stmt'],elem['params'] , call)
     
-    } 
+   }
      function repeatValues(arr, stat){
         var arrFinal = []
        arr.forEach((elem)=>{
@@ -115,8 +127,23 @@ save(callback){
         return arrFinal;
     }    
     
-} 
-
+function manyTo(obj,attr, values, params , id){
+    var manymany = []
+        {{#fkexists}}
+        if(obj.{{model}}_id)  {
+           if('{{type}}' == 'M-M'){
+                if(Array.isArray(obj.{{model}}_id)){
+                    manymany.push({stmt:"INSERT INTO {{classT}} ({{classTitle}}_id, {{model}}_id) values "+ Array(obj.{{model}}_id.length).fill("(?,?)").join(","), params: repeatValues(obj.{{model}}_id, id)}); 
+                }else{
+                    manymany.push({stmt:"INSERT INTO {{classT}} ({{classTitle}}_id, {{model}}_id) values (?,?)",  params: [id, obj.{{model}}_id]}); 
+                }
+            }
+        }
+        {{/fkexists}}
+        return manymany
+    }
 }
-
+    
+} 
+ 
 module.exports = {{classTitle}}

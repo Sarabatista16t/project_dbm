@@ -1,1326 +1,539 @@
-const express = require("express");
-
-const router = express.Router();
+var express = require('express');
+var router = express.Router();
+const path = require('path');
 
 
 var Album = require("../Models/Album.js");
 
 
-router.post("/api/Album", function (req,res){
+router.post("/Album", function (req,res){
+    console.log("BODY>>>>>> " + Object.keys(req.body))
     var al = Object.assign(new Album(),req.body);
     al.save(function(result){
-      res.send();
+      res.send(result);
     });
-
-    
 });
 
-router.get("/api/Album", function(req,res){
+router.get("/Album", function(req,res){
     var rows = Album.all(
     function(result){
-        res.json(result);
+        var r = [];
+        for(var i in result){
+            var key = result[i];
+            var prop = Object.getOwnPropertyNames(key);
+            var elem ={}
+            prop.forEach((p)=>{
+                elem[p]=(key[p])
+            })
+            r.push(elem)
+        }
+        res.json(r);
     });
 });
 
-router.get('/api/Album/:id', function (req, res) {
+router.get('/Album/:id', function (req, res) {
    Album.get(req.params.id,
        function(result){
-        res.json(result);
+         var r = [];
+        for(var i in result){
+            var key = result[i];
+            var prop = Object.getOwnPropertyNames(key);
+            var elem ={}
+            prop.forEach((p)=>{
+                elem[p]=(key[p])
+            })
+            r.push(elem)
+        }
+        res.json(r);
     });
 }); 
 
-router.put("/api/Album/:id",function(req, res){
-    var aux = {"id": parseInt(req.params.id)};
-    var al = Object.assign(new Album(), aux, req.body);
-    al.save(function(result){
-        res.json(result);
-    });
+router.put("/Album/:id",function(req, res){
+    Album.get(req.params.id, (obj)=>{
+        var o = obj[0]
+        var data = {};
+        Object.getOwnPropertyNames(o).forEach((val,index,arr)=>{
+            data[val]= o[val];
+        }) 
+        var al = Object.assign(new Album(),data, req.body);
+        al.save(function(result){
+            res.json(result);
+        });
+    })
+    
 
     
 });
 
-router.delete("/api/Album/:id", function(req,res){
+router.delete("/Album/:id", function(req,res){
     Album.delete(req.params.id,
        function(result){
         res.json(result);
     });
 })
 
-
-var Artist_SocialMedia = require("../Models/Artist_SocialMedia.js");
-
-
-router.post("/api/Artist_SocialMedia", function (req,res){
-    var al = Object.assign(new Artist_SocialMedia(),req.body);
-    al.save(function(result){
-      res.send();
-    });
-
-    
+router.get('/Album/:model/:id', function (req, res) {
+    Album.many(req.params.model, req.params.id, (rows) => {
+        res.json(rows)});
 });
 
-router.get("/api/Artist_SocialMedia", function(req,res){
-    var rows = Artist_SocialMedia.all(
-    function(result){
-        res.json(result);
-    });
-});
-
-router.get('/api/Artist_SocialMedia/:id', function (req, res) {
-   Artist_SocialMedia.get(req.params.id,
-       function(result){
-        res.json(result);
-    });
-}); 
-
-router.put("/api/Artist_SocialMedia/:id",function(req, res){
-    var aux = {"id": parseInt(req.params.id)};
-    var al = Object.assign(new Artist_SocialMedia(), aux, req.body);
-    al.save(function(result){
-        res.json(result);
-    });
-
-    
-});
-
-router.delete("/api/Artist_SocialMedia/:id", function(req,res){
-    Artist_SocialMedia.delete(req.params.id,
-       function(result){
-        res.json(result);
-    });
-})
 
 
 var Artist = require("../Models/Artist.js");
 
 
-router.post("/api/Artist", function (req,res){
+router.post("/Artist", function (req,res){
+    console.log("BODY>>>>>> " + Object.keys(req.body))
     var al = Object.assign(new Artist(),req.body);
     al.save(function(result){
-      res.send();
+      res.send(result);
     });
-
-    
 });
 
-router.get("/api/Artist", function(req,res){
+router.get("/Artist", function(req,res){
     var rows = Artist.all(
     function(result){
-        res.json(result);
+        var r = [];
+        for(var i in result){
+            var key = result[i];
+            var prop = Object.getOwnPropertyNames(key);
+            var elem ={}
+            prop.forEach((p)=>{
+                elem[p]=(key[p])
+            })
+            r.push(elem)
+        }
+        res.json(r);
     });
 });
 
-router.get('/api/Artist/:id', function (req, res) {
+router.get('/Artist/:id', function (req, res) {
    Artist.get(req.params.id,
        function(result){
-        res.json(result);
+         var r = [];
+        for(var i in result){
+            var key = result[i];
+            var prop = Object.getOwnPropertyNames(key);
+            var elem ={}
+            prop.forEach((p)=>{
+                elem[p]=(key[p])
+            })
+            r.push(elem)
+        }
+        res.json(r);
     });
 }); 
 
-router.put("/api/Artist/:id",function(req, res){
-    var aux = {"id": parseInt(req.params.id)};
-    var al = Object.assign(new Artist(), aux, req.body);
-    al.save(function(result){
-        res.json(result);
-    });
+router.put("/Artist/:id",function(req, res){
+    Artist.get(req.params.id, (obj)=>{
+        var o = obj[0]
+        var data = {};
+        Object.getOwnPropertyNames(o).forEach((val,index,arr)=>{
+            data[val]= o[val];
+        }) 
+        var al = Object.assign(new Artist(),data, req.body);
+        al.save(function(result){
+            res.json(result);
+        });
+    })
+    
 
     
 });
 
-router.delete("/api/Artist/:id", function(req,res){
+router.delete("/Artist/:id", function(req,res){
     Artist.delete(req.params.id,
        function(result){
         res.json(result);
     });
 })
 
-
-var Company = require("../Models/Company.js");
-
-
-router.post("/api/Company", function (req,res){
-    var al = Object.assign(new Company(),req.body);
-    al.save(function(result){
-      res.send();
-    });
-
-    
+router.get('/Artist/:model/:id', function (req, res) {
+    Artist.many(req.params.model, req.params.id, (rows) => {
+        res.json(rows)});
 });
 
-router.get("/api/Company", function(req,res){
-    var rows = Company.all(
-    function(result){
-        res.json(result);
-    });
-});
-
-router.get('/api/Company/:id', function (req, res) {
-   Company.get(req.params.id,
-       function(result){
-        res.json(result);
-    });
-}); 
-
-router.put("/api/Company/:id",function(req, res){
-    var aux = {"id": parseInt(req.params.id)};
-    var al = Object.assign(new Company(), aux, req.body);
-    al.save(function(result){
-        res.json(result);
-    });
-
-    
-});
-
-router.delete("/api/Company/:id", function(req,res){
-    Company.delete(req.params.id,
-       function(result){
-        res.json(result);
-    });
-})
 
 
 var Genre = require("../Models/Genre.js");
 
 
-router.post("/api/Genre", function (req,res){
+router.post("/Genre", function (req,res){
+    console.log("BODY>>>>>> " + Object.keys(req.body))
     var al = Object.assign(new Genre(),req.body);
     al.save(function(result){
-      res.send();
+      res.send(result);
     });
-
-    
 });
 
-router.get("/api/Genre", function(req,res){
+router.get("/Genre", function(req,res){
     var rows = Genre.all(
     function(result){
-        res.json(result);
+        var r = [];
+        for(var i in result){
+            var key = result[i];
+            var prop = Object.getOwnPropertyNames(key);
+            var elem ={}
+            prop.forEach((p)=>{
+                elem[p]=(key[p])
+            })
+            r.push(elem)
+        }
+        res.json(r);
     });
 });
 
-router.get('/api/Genre/:id', function (req, res) {
+router.get('/Genre/:id', function (req, res) {
    Genre.get(req.params.id,
        function(result){
-        res.json(result);
+         var r = [];
+        for(var i in result){
+            var key = result[i];
+            var prop = Object.getOwnPropertyNames(key);
+            var elem ={}
+            prop.forEach((p)=>{
+                elem[p]=(key[p])
+            })
+            r.push(elem)
+        }
+        res.json(r);
     });
 }); 
 
-router.put("/api/Genre/:id",function(req, res){
-    var aux = {"id": parseInt(req.params.id)};
-    var al = Object.assign(new Genre(), aux, req.body);
-    al.save(function(result){
-        res.json(result);
-    });
+router.put("/Genre/:id",function(req, res){
+    Genre.get(req.params.id, (obj)=>{
+        var o = obj[0]
+        var data = {};
+        Object.getOwnPropertyNames(o).forEach((val,index,arr)=>{
+            data[val]= o[val];
+        }) 
+        var al = Object.assign(new Genre(),data, req.body);
+        al.save(function(result){
+            res.json(result);
+        });
+    })
+    
 
     
 });
 
-router.delete("/api/Genre/:id", function(req,res){
+router.delete("/Genre/:id", function(req,res){
     Genre.delete(req.params.id,
        function(result){
         res.json(result);
     });
 })
 
+router.get('/Genre/:model/:id', function (req, res) {
+    Genre.many(req.params.model, req.params.id, (rows) => {
+        res.json(rows)});
+});
+
+
 
 var Producer = require("../Models/Producer.js");
 
 
-router.post("/api/Producer", function (req,res){
+router.post("/Producer", function (req,res){
+    console.log("BODY>>>>>> " + Object.keys(req.body))
     var al = Object.assign(new Producer(),req.body);
     al.save(function(result){
-      res.send();
+      res.send(result);
     });
-
-    
 });
 
-router.get("/api/Producer", function(req,res){
+router.get("/Producer", function(req,res){
     var rows = Producer.all(
     function(result){
-        res.json(result);
+        var r = [];
+        for(var i in result){
+            var key = result[i];
+            var prop = Object.getOwnPropertyNames(key);
+            var elem ={}
+            prop.forEach((p)=>{
+                elem[p]=(key[p])
+            })
+            r.push(elem)
+        }
+        res.json(r);
     });
 });
 
-router.get('/api/Producer/:id', function (req, res) {
+router.get('/Producer/:id', function (req, res) {
    Producer.get(req.params.id,
        function(result){
-        res.json(result);
+         var r = [];
+        for(var i in result){
+            var key = result[i];
+            var prop = Object.getOwnPropertyNames(key);
+            var elem ={}
+            prop.forEach((p)=>{
+                elem[p]=(key[p])
+            })
+            r.push(elem)
+        }
+        res.json(r);
     });
 }); 
 
-router.put("/api/Producer/:id",function(req, res){
-    var aux = {"id": parseInt(req.params.id)};
-    var al = Object.assign(new Producer(), aux, req.body);
-    al.save(function(result){
-        res.json(result);
-    });
+router.put("/Producer/:id",function(req, res){
+    Producer.get(req.params.id, (obj)=>{
+        var o = obj[0]
+        var data = {};
+        Object.getOwnPropertyNames(o).forEach((val,index,arr)=>{
+            data[val]= o[val];
+        }) 
+        var al = Object.assign(new Producer(),data, req.body);
+        al.save(function(result){
+            res.json(result);
+        });
+    })
+    
 
     
 });
 
-router.delete("/api/Producer/:id", function(req,res){
+router.delete("/Producer/:id", function(req,res){
     Producer.delete(req.params.id,
        function(result){
         res.json(result);
     });
 })
 
+router.get('/Producer/:model/:id', function (req, res) {
+    Producer.many(req.params.model, req.params.id, (rows) => {
+        res.json(rows)});
+});
 
-var Record_Label = require("../Models/Record_Label.js");
 
 
-router.post("/api/Record_Label", function (req,res){
-    var al = Object.assign(new Record_Label(),req.body);
+var RecordLabel = require("../Models/RecordLabel.js");
+
+
+router.post("/RecordLabel", function (req,res){
+    console.log("BODY>>>>>> " + Object.keys(req.body))
+    var al = Object.assign(new RecordLabel(),req.body);
     al.save(function(result){
-      res.send();
+      res.send(result);
     });
-
-    
 });
 
-router.get("/api/Record_Label", function(req,res){
-    var rows = Record_Label.all(
+router.get("/RecordLabel", function(req,res){
+    var rows = RecordLabel.all(
     function(result){
-        res.json(result);
+        var r = [];
+        for(var i in result){
+            var key = result[i];
+            var prop = Object.getOwnPropertyNames(key);
+            var elem ={}
+            prop.forEach((p)=>{
+                elem[p]=(key[p])
+            })
+            r.push(elem)
+        }
+        res.json(r);
     });
 });
 
-router.get('/api/Record_Label/:id', function (req, res) {
-   Record_Label.get(req.params.id,
+router.get('/RecordLabel/:id', function (req, res) {
+   RecordLabel.get(req.params.id,
        function(result){
-        res.json(result);
+         var r = [];
+        for(var i in result){
+            var key = result[i];
+            var prop = Object.getOwnPropertyNames(key);
+            var elem ={}
+            prop.forEach((p)=>{
+                elem[p]=(key[p])
+            })
+            r.push(elem)
+        }
+        res.json(r);
     });
 }); 
 
-router.put("/api/Record_Label/:id",function(req, res){
-    var aux = {"id": parseInt(req.params.id)};
-    var al = Object.assign(new Record_Label(), aux, req.body);
-    al.save(function(result){
-        res.json(result);
-    });
+router.put("/RecordLabel/:id",function(req, res){
+    RecordLabel.get(req.params.id, (obj)=>{
+        var o = obj[0]
+        var data = {};
+        Object.getOwnPropertyNames(o).forEach((val,index,arr)=>{
+            data[val]= o[val];
+        }) 
+        var al = Object.assign(new RecordLabel(),data, req.body);
+        al.save(function(result){
+            res.json(result);
+        });
+    })
+    
 
     
 });
 
-router.delete("/api/Record_Label/:id", function(req,res){
-    Record_Label.delete(req.params.id,
+router.delete("/RecordLabel/:id", function(req,res){
+    RecordLabel.delete(req.params.id,
        function(result){
         res.json(result);
     });
 })
 
+router.get('/RecordLabel/:model/:id', function (req, res) {
+    RecordLabel.many(req.params.model, req.params.id, (rows) => {
+        res.json(rows)});
+});
 
-var Social_Media = require("../Models/Social_Media.js");
 
 
-router.post("/api/Social_Media", function (req,res){
-    var al = Object.assign(new Social_Media(),req.body);
+var SocialMedia = require("../Models/SocialMedia.js");
+
+
+router.post("/SocialMedia", function (req,res){
+    console.log("BODY>>>>>> " + Object.keys(req.body))
+    var al = Object.assign(new SocialMedia(),req.body);
     al.save(function(result){
-      res.send();
+      res.send(result);
     });
-
-    
 });
 
-router.get("/api/Social_Media", function(req,res){
-    var rows = Social_Media.all(
+router.get("/SocialMedia", function(req,res){
+    var rows = SocialMedia.all(
     function(result){
-        res.json(result);
+        var r = [];
+        for(var i in result){
+            var key = result[i];
+            var prop = Object.getOwnPropertyNames(key);
+            var elem ={}
+            prop.forEach((p)=>{
+                elem[p]=(key[p])
+            })
+            r.push(elem)
+        }
+        res.json(r);
     });
 });
 
-router.get('/api/Social_Media/:id', function (req, res) {
-   Social_Media.get(req.params.id,
+router.get('/SocialMedia/:id', function (req, res) {
+   SocialMedia.get(req.params.id,
        function(result){
-        res.json(result);
+         var r = [];
+        for(var i in result){
+            var key = result[i];
+            var prop = Object.getOwnPropertyNames(key);
+            var elem ={}
+            prop.forEach((p)=>{
+                elem[p]=(key[p])
+            })
+            r.push(elem)
+        }
+        res.json(r);
     });
 }); 
 
-router.put("/api/Social_Media/:id",function(req, res){
-    var aux = {"id": parseInt(req.params.id)};
-    var al = Object.assign(new Social_Media(), aux, req.body);
-    al.save(function(result){
-        res.json(result);
-    });
+router.put("/SocialMedia/:id",function(req, res){
+    SocialMedia.get(req.params.id, (obj)=>{
+        var o = obj[0]
+        var data = {};
+        Object.getOwnPropertyNames(o).forEach((val,index,arr)=>{
+            data[val]= o[val];
+        }) 
+        var al = Object.assign(new SocialMedia(),data, req.body);
+        al.save(function(result){
+            res.json(result);
+        });
+    })
+    
 
     
 });
 
-router.delete("/api/Social_Media/:id", function(req,res){
-    Social_Media.delete(req.params.id,
+router.delete("/SocialMedia/:id", function(req,res){
+    SocialMedia.delete(req.params.id,
        function(result){
         res.json(result);
     });
 })
 
-
-var Song_Artist = require("../Models/Song_Artist.js");
-
-
-router.post("/api/Song_Artist", function (req,res){
-    var al = Object.assign(new Song_Artist(),req.body);
-    al.save(function(result){
-      res.send();
-    });
-
-    
+router.get('/SocialMedia/:model/:id', function (req, res) {
+    SocialMedia.many(req.params.model, req.params.id, (rows) => {
+        res.json(rows)});
 });
 
-router.get("/api/Song_Artist", function(req,res){
-    var rows = Song_Artist.all(
-    function(result){
-        res.json(result);
-    });
-});
-
-router.get('/api/Song_Artist/:id', function (req, res) {
-   Song_Artist.get(req.params.id,
-       function(result){
-        res.json(result);
-    });
-}); 
-
-router.put("/api/Song_Artist/:id",function(req, res){
-    var aux = {"id": parseInt(req.params.id)};
-    var al = Object.assign(new Song_Artist(), aux, req.body);
-    al.save(function(result){
-        res.json(result);
-    });
-
-    
-});
-
-router.delete("/api/Song_Artist/:id", function(req,res){
-    Song_Artist.delete(req.params.id,
-       function(result){
-        res.json(result);
-    });
-})
 
 
 var Song = require("../Models/Song.js");
 
 
-router.post("/api/Song", function (req,res){
+router.post("/Song", function (req,res){
+    console.log("BODY>>>>>> " + Object.keys(req.body))
     var al = Object.assign(new Song(),req.body);
     al.save(function(result){
-      res.send();
+      res.send(result);
     });
-
-    
 });
 
-router.get("/api/Song", function(req,res){
+router.get("/Song", function(req,res){
     var rows = Song.all(
     function(result){
-        res.json(result);
+        var r = [];
+        for(var i in result){
+            var key = result[i];
+            var prop = Object.getOwnPropertyNames(key);
+            var elem ={}
+            prop.forEach((p)=>{
+                elem[p]=(key[p])
+            })
+            r.push(elem)
+        }
+        res.json(r);
     });
 });
 
-router.get('/api/Song/:id', function (req, res) {
+router.get('/Song/:id', function (req, res) {
    Song.get(req.params.id,
        function(result){
-        res.json(result);
+         var r = [];
+        for(var i in result){
+            var key = result[i];
+            var prop = Object.getOwnPropertyNames(key);
+            var elem ={}
+            prop.forEach((p)=>{
+                elem[p]=(key[p])
+            })
+            r.push(elem)
+        }
+        res.json(r);
     });
 }); 
 
-router.put("/api/Song/:id",function(req, res){
-    var aux = {"id": parseInt(req.params.id)};
-    var al = Object.assign(new Song(), aux, req.body);
-    al.save(function(result){
-        res.json(result);
-    });
+router.put("/Song/:id",function(req, res){
+    Song.get(req.params.id, (obj)=>{
+        var o = obj[0]
+        var data = {};
+        Object.getOwnPropertyNames(o).forEach((val,index,arr)=>{
+            data[val]= o[val];
+        }) 
+        var al = Object.assign(new Song(),data, req.body);
+        al.save(function(result){
+            res.json(result);
+        });
+    })
+    
 
     
 });
 
-router.delete("/api/Song/:id", function(req,res){
+router.delete("/Song/:id", function(req,res){
     Song.delete(req.params.id,
        function(result){
         res.json(result);
     });
 })
 
-
-var Album = require("../Models/Album.js");
-
-
-router.post("/api/Album", function (req,res){
-    var al = Object.assign(new Album(),req.body);
-    al.save(function(result){
-      res.send();
-    });
-
-    
+router.get('/Song/:model/:id', function (req, res) {
+    Song.many(req.params.model, req.params.id, (rows) => {
+        res.json(rows)});
 });
 
-router.get("/api/Album", function(req,res){
-    var rows = Album.all(
-    function(result){
-        res.json(result);
-    });
-});
 
-router.get('/api/Album/:id', function (req, res) {
-   Album.get(req.params.id,
-       function(result){
-        res.json(result);
-    });
-}); 
 
-router.put("/api/Album/:id",function(req, res){
-    var aux = {"id": parseInt(req.params.id)};
-    var al = Object.assign(new Album(), aux, req.body);
-    al.save(function(result){
-        res.json(result);
-    });
 
-    
-});
-
-router.delete("/api/Album/:id", function(req,res){
-    Album.delete(req.params.id,
-       function(result){
-        res.json(result);
-    });
-})
-
-
-var Artist_SocialMedia = require("../Models/Artist_SocialMedia.js");
-
-
-router.post("/api/Artist_SocialMedia", function (req,res){
-    var al = Object.assign(new Artist_SocialMedia(),req.body);
-    al.save(function(result){
-      res.send();
-    });
-
-    
-});
-
-router.get("/api/Artist_SocialMedia", function(req,res){
-    var rows = Artist_SocialMedia.all(
-    function(result){
-        res.json(result);
-    });
-});
-
-router.get('/api/Artist_SocialMedia/:id', function (req, res) {
-   Artist_SocialMedia.get(req.params.id,
-       function(result){
-        res.json(result);
-    });
-}); 
-
-router.put("/api/Artist_SocialMedia/:id",function(req, res){
-    var aux = {"id": parseInt(req.params.id)};
-    var al = Object.assign(new Artist_SocialMedia(), aux, req.body);
-    al.save(function(result){
-        res.json(result);
-    });
-
-    
-});
-
-router.delete("/api/Artist_SocialMedia/:id", function(req,res){
-    Artist_SocialMedia.delete(req.params.id,
-       function(result){
-        res.json(result);
-    });
-})
-
-
-var Artist = require("../Models/Artist.js");
-
-
-router.post("/api/Artist", function (req,res){
-    var al = Object.assign(new Artist(),req.body);
-    al.save(function(result){
-      res.send();
-    });
-
-    
-});
-
-router.get("/api/Artist", function(req,res){
-    var rows = Artist.all(
-    function(result){
-        res.json(result);
-    });
-});
-
-router.get('/api/Artist/:id', function (req, res) {
-   Artist.get(req.params.id,
-       function(result){
-        res.json(result);
-    });
-}); 
-
-router.put("/api/Artist/:id",function(req, res){
-    var aux = {"id": parseInt(req.params.id)};
-    var al = Object.assign(new Artist(), aux, req.body);
-    al.save(function(result){
-        res.json(result);
-    });
-
-    
-});
-
-router.delete("/api/Artist/:id", function(req,res){
-    Artist.delete(req.params.id,
-       function(result){
-        res.json(result);
-    });
-})
-
-
-var Company = require("../Models/Company.js");
-
-
-router.post("/api/Company", function (req,res){
-    var al = Object.assign(new Company(),req.body);
-    al.save(function(result){
-      res.send();
-    });
-
-    
-});
-
-router.get("/api/Company", function(req,res){
-    var rows = Company.all(
-    function(result){
-        res.json(result);
-    });
-});
-
-router.get('/api/Company/:id', function (req, res) {
-   Company.get(req.params.id,
-       function(result){
-        res.json(result);
-    });
-}); 
-
-router.put("/api/Company/:id",function(req, res){
-    var aux = {"id": parseInt(req.params.id)};
-    var al = Object.assign(new Company(), aux, req.body);
-    al.save(function(result){
-        res.json(result);
-    });
-
-    
-});
-
-router.delete("/api/Company/:id", function(req,res){
-    Company.delete(req.params.id,
-       function(result){
-        res.json(result);
-    });
-})
-
-
-var Genre = require("../Models/Genre.js");
-
-
-router.post("/api/Genre", function (req,res){
-    var al = Object.assign(new Genre(),req.body);
-    al.save(function(result){
-      res.send();
-    });
-
-    
-});
-
-router.get("/api/Genre", function(req,res){
-    var rows = Genre.all(
-    function(result){
-        res.json(result);
-    });
-});
-
-router.get('/api/Genre/:id', function (req, res) {
-   Genre.get(req.params.id,
-       function(result){
-        res.json(result);
-    });
-}); 
-
-router.put("/api/Genre/:id",function(req, res){
-    var aux = {"id": parseInt(req.params.id)};
-    var al = Object.assign(new Genre(), aux, req.body);
-    al.save(function(result){
-        res.json(result);
-    });
-
-    
-});
-
-router.delete("/api/Genre/:id", function(req,res){
-    Genre.delete(req.params.id,
-       function(result){
-        res.json(result);
-    });
-})
-
-
-var Producer = require("../Models/Producer.js");
-
-
-router.post("/api/Producer", function (req,res){
-    var al = Object.assign(new Producer(),req.body);
-    al.save(function(result){
-      res.send();
-    });
-
-    
-});
-
-router.get("/api/Producer", function(req,res){
-    var rows = Producer.all(
-    function(result){
-        res.json(result);
-    });
-});
-
-router.get('/api/Producer/:id', function (req, res) {
-   Producer.get(req.params.id,
-       function(result){
-        res.json(result);
-    });
-}); 
-
-router.put("/api/Producer/:id",function(req, res){
-    var aux = {"id": parseInt(req.params.id)};
-    var al = Object.assign(new Producer(), aux, req.body);
-    al.save(function(result){
-        res.json(result);
-    });
-
-    
-});
-
-router.delete("/api/Producer/:id", function(req,res){
-    Producer.delete(req.params.id,
-       function(result){
-        res.json(result);
-    });
-})
-
-
-var Record_Label = require("../Models/Record_Label.js");
-
-
-router.post("/api/Record_Label", function (req,res){
-    var al = Object.assign(new Record_Label(),req.body);
-    al.save(function(result){
-      res.send();
-    });
-
-    
-});
-
-router.get("/api/Record_Label", function(req,res){
-    var rows = Record_Label.all(
-    function(result){
-        res.json(result);
-    });
-});
-
-router.get('/api/Record_Label/:id', function (req, res) {
-   Record_Label.get(req.params.id,
-       function(result){
-        res.json(result);
-    });
-}); 
-
-router.put("/api/Record_Label/:id",function(req, res){
-    var aux = {"id": parseInt(req.params.id)};
-    var al = Object.assign(new Record_Label(), aux, req.body);
-    al.save(function(result){
-        res.json(result);
-    });
-
-    
-});
-
-router.delete("/api/Record_Label/:id", function(req,res){
-    Record_Label.delete(req.params.id,
-       function(result){
-        res.json(result);
-    });
-})
-
-
-var Social_Media = require("../Models/Social_Media.js");
-
-
-router.post("/api/Social_Media", function (req,res){
-    var al = Object.assign(new Social_Media(),req.body);
-    al.save(function(result){
-      res.send();
-    });
-
-    
-});
-
-router.get("/api/Social_Media", function(req,res){
-    var rows = Social_Media.all(
-    function(result){
-        res.json(result);
-    });
-});
-
-router.get('/api/Social_Media/:id', function (req, res) {
-   Social_Media.get(req.params.id,
-       function(result){
-        res.json(result);
-    });
-}); 
-
-router.put("/api/Social_Media/:id",function(req, res){
-    var aux = {"id": parseInt(req.params.id)};
-    var al = Object.assign(new Social_Media(), aux, req.body);
-    al.save(function(result){
-        res.json(result);
-    });
-
-    
-});
-
-router.delete("/api/Social_Media/:id", function(req,res){
-    Social_Media.delete(req.params.id,
-       function(result){
-        res.json(result);
-    });
-})
-
-
-var Song_Artist = require("../Models/Song_Artist.js");
-
-
-router.post("/api/Song_Artist", function (req,res){
-    var al = Object.assign(new Song_Artist(),req.body);
-    al.save(function(result){
-      res.send();
-    });
-
-    
-});
-
-router.get("/api/Song_Artist", function(req,res){
-    var rows = Song_Artist.all(
-    function(result){
-        res.json(result);
-    });
-});
-
-router.get('/api/Song_Artist/:id', function (req, res) {
-   Song_Artist.get(req.params.id,
-       function(result){
-        res.json(result);
-    });
-}); 
-
-router.put("/api/Song_Artist/:id",function(req, res){
-    var aux = {"id": parseInt(req.params.id)};
-    var al = Object.assign(new Song_Artist(), aux, req.body);
-    al.save(function(result){
-        res.json(result);
-    });
-
-    
-});
-
-router.delete("/api/Song_Artist/:id", function(req,res){
-    Song_Artist.delete(req.params.id,
-       function(result){
-        res.json(result);
-    });
-})
-
-
-var Song = require("../Models/Song.js");
-
-
-router.post("/api/Song", function (req,res){
-    var al = Object.assign(new Song(),req.body);
-    al.save(function(result){
-      res.send();
-    });
-
-    
-});
-
-router.get("/api/Song", function(req,res){
-    var rows = Song.all(
-    function(result){
-        res.json(result);
-    });
-});
-
-router.get('/api/Song/:id', function (req, res) {
-   Song.get(req.params.id,
-       function(result){
-        res.json(result);
-    });
-}); 
-
-router.put("/api/Song/:id",function(req, res){
-    var aux = {"id": parseInt(req.params.id)};
-    var al = Object.assign(new Song(), aux, req.body);
-    al.save(function(result){
-        res.json(result);
-    });
-
-    
-});
-
-router.delete("/api/Song/:id", function(req,res){
-    Song.delete(req.params.id,
-       function(result){
-        res.json(result);
-    });
-})
-
-
-var Album = require("../Models/Album.js");
-
-
-router.post("/api/Album", function (req,res){
-    var al = Object.assign(new Album(),req.body);
-    al.save(function(result){
-      res.send();
-    });
-
-    
-});
-
-router.get("/api/Album", function(req,res){
-    var rows = Album.all(
-    function(result){
-        res.json(result);
-    });
-});
-
-router.get('/api/Album/:id', function (req, res) {
-   Album.get(req.params.id,
-       function(result){
-        res.json(result);
-    });
-}); 
-
-router.put("/api/Album/:id",function(req, res){
-    var aux = {"id": parseInt(req.params.id)};
-    var al = Object.assign(new Album(), aux, req.body);
-    al.save(function(result){
-        res.json(result);
-    });
-
-    
-});
-
-router.delete("/api/Album/:id", function(req,res){
-    Album.delete(req.params.id,
-       function(result){
-        res.json(result);
-    });
-})
-
-
-var Artist_SocialMedia = require("../Models/Artist_SocialMedia.js");
-
-
-router.post("/api/Artist_SocialMedia", function (req,res){
-    var al = Object.assign(new Artist_SocialMedia(),req.body);
-    al.save(function(result){
-      res.send();
-    });
-
-    
-});
-
-router.get("/api/Artist_SocialMedia", function(req,res){
-    var rows = Artist_SocialMedia.all(
-    function(result){
-        res.json(result);
-    });
-});
-
-router.get('/api/Artist_SocialMedia/:id', function (req, res) {
-   Artist_SocialMedia.get(req.params.id,
-       function(result){
-        res.json(result);
-    });
-}); 
-
-router.put("/api/Artist_SocialMedia/:id",function(req, res){
-    var aux = {"id": parseInt(req.params.id)};
-    var al = Object.assign(new Artist_SocialMedia(), aux, req.body);
-    al.save(function(result){
-        res.json(result);
-    });
-
-    
-});
-
-router.delete("/api/Artist_SocialMedia/:id", function(req,res){
-    Artist_SocialMedia.delete(req.params.id,
-       function(result){
-        res.json(result);
-    });
-})
-
-
-var Artist = require("../Models/Artist.js");
-
-
-router.post("/api/Artist", function (req,res){
-    var al = Object.assign(new Artist(),req.body);
-    al.save(function(result){
-      res.send();
-    });
-
-    
-});
-
-router.get("/api/Artist", function(req,res){
-    var rows = Artist.all(
-    function(result){
-        res.json(result);
-    });
-});
-
-router.get('/api/Artist/:id', function (req, res) {
-   Artist.get(req.params.id,
-       function(result){
-        res.json(result);
-    });
-}); 
-
-router.put("/api/Artist/:id",function(req, res){
-    var aux = {"id": parseInt(req.params.id)};
-    var al = Object.assign(new Artist(), aux, req.body);
-    al.save(function(result){
-        res.json(result);
-    });
-
-    
-});
-
-router.delete("/api/Artist/:id", function(req,res){
-    Artist.delete(req.params.id,
-       function(result){
-        res.json(result);
-    });
-})
-
-
-var Company = require("../Models/Company.js");
-
-
-router.post("/api/Company", function (req,res){
-    var al = Object.assign(new Company(),req.body);
-    al.save(function(result){
-      res.send();
-    });
-
-    
-});
-
-router.get("/api/Company", function(req,res){
-    var rows = Company.all(
-    function(result){
-        res.json(result);
-    });
-});
-
-router.get('/api/Company/:id', function (req, res) {
-   Company.get(req.params.id,
-       function(result){
-        res.json(result);
-    });
-}); 
-
-router.put("/api/Company/:id",function(req, res){
-    var aux = {"id": parseInt(req.params.id)};
-    var al = Object.assign(new Company(), aux, req.body);
-    al.save(function(result){
-        res.json(result);
-    });
-
-    
-});
-
-router.delete("/api/Company/:id", function(req,res){
-    Company.delete(req.params.id,
-       function(result){
-        res.json(result);
-    });
-})
-
-
-var Genre = require("../Models/Genre.js");
-
-
-router.post("/api/Genre", function (req,res){
-    var al = Object.assign(new Genre(),req.body);
-    al.save(function(result){
-      res.send();
-    });
-
-    
-});
-
-router.get("/api/Genre", function(req,res){
-    var rows = Genre.all(
-    function(result){
-        res.json(result);
-    });
-});
-
-router.get('/api/Genre/:id', function (req, res) {
-   Genre.get(req.params.id,
-       function(result){
-        res.json(result);
-    });
-}); 
-
-router.put("/api/Genre/:id",function(req, res){
-    var aux = {"id": parseInt(req.params.id)};
-    var al = Object.assign(new Genre(), aux, req.body);
-    al.save(function(result){
-        res.json(result);
-    });
-
-    
-});
-
-router.delete("/api/Genre/:id", function(req,res){
-    Genre.delete(req.params.id,
-       function(result){
-        res.json(result);
-    });
-})
-
-
-var Producer = require("../Models/Producer.js");
-
-
-router.post("/api/Producer", function (req,res){
-    var al = Object.assign(new Producer(),req.body);
-    al.save(function(result){
-      res.send();
-    });
-
-    
-});
-
-router.get("/api/Producer", function(req,res){
-    var rows = Producer.all(
-    function(result){
-        res.json(result);
-    });
-});
-
-router.get('/api/Producer/:id', function (req, res) {
-   Producer.get(req.params.id,
-       function(result){
-        res.json(result);
-    });
-}); 
-
-router.put("/api/Producer/:id",function(req, res){
-    var aux = {"id": parseInt(req.params.id)};
-    var al = Object.assign(new Producer(), aux, req.body);
-    al.save(function(result){
-        res.json(result);
-    });
-
-    
-});
-
-router.delete("/api/Producer/:id", function(req,res){
-    Producer.delete(req.params.id,
-       function(result){
-        res.json(result);
-    });
-})
-
-
-var Record_Label = require("../Models/Record_Label.js");
-
-
-router.post("/api/Record_Label", function (req,res){
-    var al = Object.assign(new Record_Label(),req.body);
-    al.save(function(result){
-      res.send();
-    });
-
-    
-});
-
-router.get("/api/Record_Label", function(req,res){
-    var rows = Record_Label.all(
-    function(result){
-        res.json(result);
-    });
-});
-
-router.get('/api/Record_Label/:id', function (req, res) {
-   Record_Label.get(req.params.id,
-       function(result){
-        res.json(result);
-    });
-}); 
-
-router.put("/api/Record_Label/:id",function(req, res){
-    var aux = {"id": parseInt(req.params.id)};
-    var al = Object.assign(new Record_Label(), aux, req.body);
-    al.save(function(result){
-        res.json(result);
-    });
-
-    
-});
-
-router.delete("/api/Record_Label/:id", function(req,res){
-    Record_Label.delete(req.params.id,
-       function(result){
-        res.json(result);
-    });
-})
-
-
-var Social_Media = require("../Models/Social_Media.js");
-
-
-router.post("/api/Social_Media", function (req,res){
-    var al = Object.assign(new Social_Media(),req.body);
-    al.save(function(result){
-      res.send();
-    });
-
-    
-});
-
-router.get("/api/Social_Media", function(req,res){
-    var rows = Social_Media.all(
-    function(result){
-        res.json(result);
-    });
-});
-
-router.get('/api/Social_Media/:id', function (req, res) {
-   Social_Media.get(req.params.id,
-       function(result){
-        res.json(result);
-    });
-}); 
-
-router.put("/api/Social_Media/:id",function(req, res){
-    var aux = {"id": parseInt(req.params.id)};
-    var al = Object.assign(new Social_Media(), aux, req.body);
-    al.save(function(result){
-        res.json(result);
-    });
-
-    
-});
-
-router.delete("/api/Social_Media/:id", function(req,res){
-    Social_Media.delete(req.params.id,
-       function(result){
-        res.json(result);
-    });
-})
-
-
-var Song_Artist = require("../Models/Song_Artist.js");
-
-
-router.post("/api/Song_Artist", function (req,res){
-    var al = Object.assign(new Song_Artist(),req.body);
-    al.save(function(result){
-      res.send();
-    });
-
-    
-});
-
-router.get("/api/Song_Artist", function(req,res){
-    var rows = Song_Artist.all(
-    function(result){
-        res.json(result);
-    });
-});
-
-router.get('/api/Song_Artist/:id', function (req, res) {
-   Song_Artist.get(req.params.id,
-       function(result){
-        res.json(result);
-    });
-}); 
-
-router.put("/api/Song_Artist/:id",function(req, res){
-    var aux = {"id": parseInt(req.params.id)};
-    var al = Object.assign(new Song_Artist(), aux, req.body);
-    al.save(function(result){
-        res.json(result);
-    });
-
-    
-});
-
-router.delete("/api/Song_Artist/:id", function(req,res){
-    Song_Artist.delete(req.params.id,
-       function(result){
-        res.json(result);
-    });
-})
-
-
-var Song = require("../Models/Song.js");
-
-
-router.post("/api/Song", function (req,res){
-    var al = Object.assign(new Song(),req.body);
-    al.save(function(result){
-      res.send();
-    });
-
-    
-});
-
-router.get("/api/Song", function(req,res){
-    var rows = Song.all(
-    function(result){
-        res.json(result);
-    });
-});
-
-router.get('/api/Song/:id', function (req, res) {
-   Song.get(req.params.id,
-       function(result){
-        res.json(result);
-    });
-}); 
-
-router.put("/api/Song/:id",function(req, res){
-    var aux = {"id": parseInt(req.params.id)};
-    var al = Object.assign(new Song(), aux, req.body);
-    al.save(function(result){
-        res.json(result);
-    });
-
-    
-});
-
-router.delete("/api/Song/:id", function(req,res){
-    Song.delete(req.params.id,
-       function(result){
-        res.json(result);
-    });
-})
-
-
-module.exports = router;
+module.exports = router

@@ -15,29 +15,17 @@
             "maxLength": 528,
             "faker": "random.words"
         },
-        "image": {
-            "description": "Album's cover image",
-            "type": "string",
-            "faker": "image.imageUrl"
-        },
-        "release date": {
+        "releaseDate": {
             "description": "Albums's realease date",
             "type": "string",
+            "format": "date-time",
             "faker": "date.past"
-        },
-        "id artist": {
-            "description": "Artist id",
-            "type": "integer",
-            "faker": "random.number"
-        },
-        "id producer": {
-            "description": "Producer's id",
-            "type": "integer"
-        },
-        "id record label": {
-            "description": "Record Label's id",
-            "type": "integer"
         }
     },
-    "required": ["title", "release date", "id artist"]
+    "required": ["title", "releaseDate"],
+    "references": [{
+        "model": "Song",
+        "relation": "M-M",
+        "label": "title"
+    }]
 }

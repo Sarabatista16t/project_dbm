@@ -5,16 +5,8 @@
             "path": "./schemas/Schema-Album.json"
         },
         {
-            "name": "Artist_SocialMedia",
-            "path": "./schemas/Schema-Artist_SocialMedia.json"
-        },
-        {
             "name": "Artist",
             "path": "./schemas/Schema-Artist.json"
-        },
-        {
-            "name": "Company",
-            "path": "./schemas/Schema-Company.json"
         },
         {
             "name": "Genre",
@@ -25,29 +17,25 @@
             "path": "./schemas/Schema-Producer.json"
         },
         {
-            "name": "Record Label",
+            "name": "RecordLabel",
             "path": "./schemas/Schema-RecordLabel.json"
         },
         {
-            "name": "Social Media",
+            "name": "SocialMedia",
             "path": "./schemas/Schema-SocialMedia.json"
-        },
-        {
-            "name": "Song_artist",
-            "path": "./schemas/Schema-Song_artist.json"
         },
         {
             "name": "Song",
             "path": "./schemas/Schema-Song.json"
         }
     ],
-     "dbname": "labs",
-    "dbpath": "./Publish/Database/labs",
+    "dbname": "projeto",
+    "dbpath": "./Publish/Database/projeto",
     "frontoffice": [{
-        "model": "Aluno",
-        "property": "grade",
+        "model": "Song",
+        "property": "title",
         "order": "DESC",
-        "limit": 3
+        "limit": 5
     }],
     "staticFiles": [{
             "originalPath": "./staticFiles/sqlite-wrapper.js",
@@ -76,18 +64,6 @@
         {
             "originalPath": "./staticFiles/edit.mustache",
             "destinationPath": "./Publish/Views/edit.mustache"
-        },
-        {
-            "originalPath": "./staticFiles/delete.png",
-            "destinationPath": "./Publish/Public/images/delete.png"
-        },
-        {
-            "originalPath": "./staticFiles/edit.png",
-            "destinationPath": "./Publish/Public/images/edit.png"
-        },
-        {
-            "originalPath": "./staticFiles/read.png",
-            "destinationPath": "./Publish/Public/images/read.png"
         }
     ]
 }

@@ -15,22 +15,21 @@
             "minimum": 0,
             "maximum": 900,
             "faker": "random.number"
-        },
-        "id album": {
-            "description": "Album's id",
-            "type": "integer",
-            "faker": "random.number"
-        },
-        "id genre": {
-            "description": "Music genre's id",
-            "type": "integer",
-            "faker": "random.number"
         }
     },
     "required": [
         "title",
-        "duration",
-        "id album",
-        "id genre"
+        "duration"
+    ],
+    "references": [{
+            "model": "Genre",
+            "relation": "M-M",
+            "label": "name"
+        },
+        {
+            "model": "Album",
+            "relation": "M-M",
+            "label": "title"
+        }
     ]
 }

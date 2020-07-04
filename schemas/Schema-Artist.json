@@ -14,14 +14,14 @@
             "type": "string",
             "maxLength": 128,
             "faker": "name.firstName"
-        },
-        "id record label": {
-            "description": "Artist's record label",
-            "type": "integer",
-            "faker": "random.number"
         }
     },
     "required": [
         "name"
-    ]
+    ],
+    "references": [{
+        "model": "Album",
+        "relation": "1-M",
+        "label": "title"
+    }]
 }

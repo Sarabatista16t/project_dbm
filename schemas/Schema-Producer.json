@@ -8,15 +8,14 @@
             "type": "string",
             "maxLength": 128,
             "faker": "name.findName"
-        },
-        "id company": {
-            "description": "Producer's company",
-            "type": "integer",
-            "faker": "random.number"
         }
     },
     "required": [
-        "name",
-        "id company"
-    ]
+        "name"
+    ],
+    "references": [{
+        "model": "Album",
+        "relation": "1-M",
+        "label": "title"
+    }]
 }

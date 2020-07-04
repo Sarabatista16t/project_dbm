@@ -8,6 +8,7 @@ var {{name}} = require("../Models/{{name}}.js");
 
 
 router.post("/{{name}}", function (req,res){
+    console.log("BODY>>>>>> " + Object.keys(req.body))
     var al = Object.assign(new {{name}}(),req.body);
     al.save(function(result){
       res.send(result);

@@ -48,9 +48,9 @@ function submitForm(oFormElement){
                         data.map(row => {
                                 var checkbox = document.createElement("input");
                                 checkbox.type = "checkbox"; 
-                                checkbox.className = "{{model}}_checkbox";
+                                checkbox.class = "{{model}}_checkbox";
                                 checkbox.value = row['id'];
-                                checkbox.id = "checkbox_{{model}}_"+ row['id']; 
+                                checkbox.id = "checkbox_"+ row['id']; 
                                 var l = document.createElement('label');                 
                                 l.htmlFor ="checkbox_"+ row['id'];                             
                                 l.appendChild(document.createTextNode(row[label])); 

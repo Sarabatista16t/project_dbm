@@ -6,34 +6,42 @@ const sqlite3 = require('sqlite3').verbose();
  * @param {any} dbpath 
  * @returns 
  */
-module.exports = function (dbpath) {
+module.exports = function(dbpath) {
     return {
-        get: function (statement, params, type, callback) {
-            let db = new sqlite3.Database(dbpath);
-            db.get(statement, params, function (err, row) {
+        get: function(statement, params, type, callback) {
+            let db = new sqlite3.Database(dbpath + '.db');
+            db.get(statement, params, function(err, row) {
                 if (row) {
                     row = Object.assign(new type(), row);
                     callback(row);
+                } else {
+                    console.log('get err :>> ', err);
                 }
             });
             db.close();
         },
-        run: function (statement, params, callback) {
-            let db = new sqlite3.Database(dbpath);
-            db.run(statement, params, function (err) {
-                if (callback)
-                    callback({ success: !err, error: err, rowsAffected: this.changes });
+        run: function(statement, params, callback) {
+            let db = new sqlite3.Database(dbpath + '.db');
+            db.run(statement, params, function(err) {
+                if (callback) {
+                    callback({ success: !err, error: err, rowsAffected: this.changes, lastId: this.lastID });
+                } else {
+                    console.log('run err :>> ', err);
+                }
             });
             db.close();
         },
-        where: function (statement, params, type, callback) {
-
-            let db = new sqlite3.Database(dbpath);
-            db.all(statement, params, function (err, rows) {
-                rows = rows.map(function (object) {
-                    return Object.assign(new type(), object);
-                });
-                callback(rows);
+        where: function(statement, params, type, callback) {
+            let db = new sqlite3.Database(dbpath + '.db');
+            db.all(statement, params, function(err, rows) {
+                if (!err) {
+                    rows = rows.map(function(object) {
+                        return Object.assign(new type(), object);
+                    });
+                    callback(rows);
+                } else {
+                    console.log('where err :>> ', err);
+                }
             });
             db.close();
         }

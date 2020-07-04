@@ -1,0 +1,48 @@
+<html>
+    <head>
+        <script>
+        {{#hasReferences}}
+        function loadValues(model,values,label,controlId){
+           var xhr = new XMLHttpRequest();
+              let route = '/api/'+model+values;
+            xhr.onreadystatechange = function () {
+            if(xhr.readyState === 4 && xhr.status === 200) {
+                var control = document.getElementById(controlId);
+                var response = JSON.parse(this.responseText);
+                if(response.constructor === Array)
+                    control.innerHTML = response.map(row => { return
+                    row[label] }).join();
+                else
+                    control.innerHTML = response[label];
+                }
+            }
+        xhr.open ('GET', route, true);
+        xhr.setRequestHeader( "Content-Type", "application/json" );
+
+        xhr.send ();
+        return false;
+        }
+
+        window.onload = function() {
+        {{#references}}
+        loadValues('{{{model}}}','{{{values}}}','{{labelRef}}','label{{model}}value');
+        {{/references}}
+        }
+        {{/hasReferences}}
+        </script>
+    </head>
+    <body>
+     {{>menu}}
+
+    {{#properties}}
+        <div>
+        <label>{{name}}:</label>
+        <label>{{value}}</label>
+        </div>
+    {{/properties}}
+    {{#references}}
+        <label>{{model}}:</label>
+        <label id="label{{model}}value"></label>
+    {{/references}}
+    </body>
+</html>

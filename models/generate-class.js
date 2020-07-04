@@ -18,10 +18,11 @@ function generateView(dbname, schema) {
     var references = [];
     let refExists = false;
     if (schema.references) {
-        schema.references.forEach((elem) => {
+        schema.references.forEach((elem, i, arr) => {
             let ref = {}
             ref['model'] = elem['model'];
             ref['type'] = elem['relation'];
+            ref['last'] = (i == schema.references.length) ? false : true
             references.push(ref)
         })
         refExists = true;
@@ -43,6 +44,7 @@ function generateView(dbname, schema) {
         fknotexists: !refExists,
         model: function() { return this },
         type: function() { return this },
+        last: function() { return this },
         classT: function() {
             return (schema.title < this.model) ? schema.title + "_" + this.model : this.model + "_" + schema.title;
         }
