@@ -1,15 +1,19 @@
 var express = require("express");
 var bodyParser = require("body-parser");
+var mustacheExpress = require('mustache-express');
 var fs = require("fs");
 var del = require("del");
 var mkdirp = require("mkdirp")
+const sqlite3 = require('sqlite3').verbose()
+var Promise = require('promise');
+
 var app = express();
 app.use(express.static('Public'));
 app.use(bodyParser.urlencoded());
 app.use(bodyParser.json());
-const sqlite3 = require('sqlite3').verbose()
-var Promise = require('promise');
-
+app.engine('mustache', mustacheExpress());
+app.set('view engine', 'mustache'); //extensão dos ficheiros das views
+app.set('views', './Publish/Views'); //indicação de qual a pasta que irá conter   as views
 
 
 //Schemas 
@@ -17,17 +21,9 @@ var schemas =new Array();
 
 
 app.post("/generate", function (req, res) {
-    //Delete previous folders
-    del.sync(['Publish']);
+  
+    fs.mkdir('{{{dbpath}}}', function() {});
 
-    //Create folders
-
-    //Create Publish folder
-    fs.mkdir("./Publish", function(){});
-    
-    //Create Schemas folder
-    fs.mkdir("./Publish/Schemas",function(){}); 
-            
     //Copy Schemas
     {{#schemas}} 
     fs.copyFileSync('{{{path}}}','./Publish/Schemas/Schema-'+'{{{name}}}'+'.json');
@@ -35,63 +31,34 @@ app.post("/generate", function (req, res) {
 
     {{/schemas}}  
 
-    //Create Database folder
-    fs.mkdir("./Publish/Database",function(){ 
-        //Copy static files
-        {{#staticFiles}} 
-        fs.copyFileSync('{{{originalPath}}}','{{{destinationPath}}}');
-        {{/staticFiles}}
+    //Copy static files
+    {{#staticFiles}} 
+    fs.copyFileSync('{{{originalPath}}}','{{{destinationPath}}}');
+    {{/staticFiles}}
 
-
-    });
-    //Create Folder for project's database
-
-    fs.mkdir('{{{dbpath}}}', function(){
-        //Create Database
-        require("../database/generate-database.js")('{{{dbpath}}}/{{dbname}}',schemas);
-    });
-
-    //Create Models folder
-    fs.mkdir("./Publish/Models",function(){
-        //Create Models from schemas
-        require("../models/generate-class.js")('{{{dbpath}}}/{{dbname}}',schemas);
-
-    });
-
-    //Create Controllers folder
-    fs.mkdir("./Publish/Controllers", function(){
-        //Create Routes file
-        var generate = require("../restful-api/generate-api.js");
-        new Promise((result, reject)=> generate(schemas)).then(
-            function(result){
-                try{     
-                    //Execute routes file 
-                    var api = require('../Publish/Controllers/api.js');
-                    
-                    //Middleware expression
-                    app.use('/api/', api)
-                }catch(e){
-                    console.log(e)
-                }
-            }
-        );
-        
-
-    });
-     //Create Views folder
-    fs.mkdir("./Publish/Views",function(){});
-  
-    //Create Public folder
-    fs.mkdir('./Publish/Public', function () {
-        fs.writeFile('Publish/Public/index.js', fs.readFileSync("./index.js"), function () {
-            console.log('File created in new directory');
-        });
-
-    });
+    const db = require("../database/generate-database.js");
+    //Create Database
+    db.generate('{{{dbpath}}}/{{dbname}}.db','{{dbname}}',schemas, db.relations);
     
-    mkdirp.sync('./Publish/Public/Css/Js');
-        
- 
+    //Create Models from schemas
+    require("../models/generate-class.js")('{{{dbpath}}}/{{dbname}}',schemas);
+
+    //Create Routes file
+    var generate = require("../restful-api/generate-api.js");
+    generate.generateAPI(schemas,
+    ()=>{ 
+         generate.generateFrontoffice( 
+            ()=>{
+                var api = require('../Publish/Controllers/api.js');
+                    app.use('/api', api)
+                    var backoffice = require('../Publish/Controllers/backoffice.js');
+                    app.use('/backoffice', backoffice)
+                    var frontoffice = require('../Publish/Controllers/frontoffice.js');
+                    app.use('/frontoffice', frontoffice)
+            })
+       
+        });
+       
     res.send();
 });
 
